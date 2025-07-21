@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartCents - Budget Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>SmartCents - Budget Tracker</h1>
+      <button id="toggleTheme">🌗</button>
+    </header>
+
+    <main>
+      <section id="authSection">
+        <h2>Login</h2>
+        <input type="email" id="emailInput" placeholder="Enter your email">
+        <button id="sendOtpBtn">Send OTP</button>
+
+        <input type="text" id="otpInput" placeholder="Enter OTP" style="display:none">
+        <button id="verifyOtpBtn" style="display:none">Verify OTP</button>
+      </section>
+
+      <section id="dashboard" style="display:none">
+        <h2>Welcome to SmartCents</h2>
+        <p>Here is your monthly budget dashboard:</p>
+        <div id="budgetForm">
+          <label>Net Salary: <input type="number" id="netSalary"></label>
+          <label>Rent: <input type="number" class="expense"></label>
+          <label>Internet/WiFi: <input type="number" class="expense"></label>
+          <label>Cellphone: <input type="number" class="expense"></label>
+          <label>Car: <input type="number" class="expense"></label>
+          <label>Household: <input type="number" class="expense"></label>
+          <label>Petrol: <input type="number" class="expense"></label>
+          <label>Toiletries: <input type="number" class="expense"></label>
+          <label>Pocket Money: <input type="number" class="expense"></label>
+          <label>Entertainment: <input type="number" class="expense"></label>
+          <label>Savings: <input type="number" class="expense"></label>
+
+          <h3>Credit Repayments</h3>
+          <div id="creditFields"></div>
+
+          <button id="calculateBalance">Calculate Balance</button>
+          <h3>Remaining Balance: R<span id="balanceOutput">0.00</span></h3>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
