@@ -1,33 +1,102 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const toggleThemeBtn = document.getElementById("toggleTheme");
-  const body = document.body;
-  const calculateBalanceBtn = document.getElementById("calculateBalance");
-  const balanceOutput = document.getElementById("balanceOutput");
-  const netSalaryInput = document.getElementById("netSalary");
-  const expenseInputs = document.getElementsByClassName("expense");
-  const creditFields = document.getElementById("creditFields");
+// Firebase config from your Firebase Console (fill yours in)
+const firebaseConfig = {
+  apiKey: "AIzaSyDZkY748LmNNlWKi2s24_xOsYD9-SLe4W4",
+  authDomain: "smartcents-2b824.firebaseapp.com",
+  projectId: "smartcents-2b824",
+  storageBucket: "smartcents-2b824.firebasestorage.app",
+  messagingSenderId: "411677208238",
+  appId: "1:411677208238:web:9d6762aa6d9b2ec336473f"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-  toggleThemeBtn.addEventListener("click", () => {
-    body.classList.toggle("dark-theme");
-  });
+const emailInput = document.getElementById("emailInput");
+const sendOtpBtn = document.getElementById("sendOtpBtn");
+const authSection = document.getElementById("authSection");
+const dashboard = document.getElementById("dashboard");
 
-  for (let i = 0; i < 10; i++) {
-    const input = document.createElement("input");
-    input.type = "number";
-    input.placeholder = `Credit Repayment ${i + 1}`;
-    input.classList.add("expense");
-    creditFields.appendChild(input);
-  }
+// --------------------------
+// 1. Send Sign-In Email Link
+// --------------------------
+sendOtpBtn.addEventListener("click", () => {
+  const email = emailInput.value;
+  if (!email) return alert("Please enter your email");
 
-  calculateBalanceBtn.addEventListener("click", () => {
-    const netSalary = parseFloat(netSalaryInput.value) || 0;
-    let totalExpenses = 0;
+  const actionCodeSettings = {
+    url: "https://danepretorius.github.io/SmartCents",
+    handleCodeInApp: true,
+  };
 
-    Array.from(expenseInputs).forEach(input => {
-      totalExpenses += parseFloat(input.value) || 0;
-    });
-
-    const remaining = netSalary - totalExpenses;
-    balanceOutput.textContent = remaining.toFixed(2);
-  });
+  auth.sendSignInLinkToEmail(email, actionCodeSettings)
+    .then(() => {
+      alert("OTP email sent! Check your inbox.");
+      window.localStorage.setItem("emailForSignIn", email);
+    })
+    .catch(error => alert("Error sending email link: " + error.message));
 });
+
+// -----------------------------
+// 2. Check if link was clicked
+// -----------------------------
+window.addEventListener("load", () => {
+  if (auth.isSignInWithEmailLink(window.location.href)) {
+    let email = window.localStorage.getItem("emailForSignIn");
+    if (!email) {
+      email = prompt("Please provide your email for confirmation");
+    }
+
+    auth.signInWithEmailLink(email, window.location.href)
+      .then(() => {
+        window.localStorage.removeItem("emailForSignIn");
+        authSection.style.display = "none";
+        dashboard.style.display = "block";
+        loadSavedData();
+      })
+      .catch(error => {
+        console.error(error);
+        alert("Error verifying link: " + error.message);
+      });
+  }
+});
+
+// ----------------------
+// 3. Budget Calculator
+// ----------------------
+const netSalaryInput = document.getElementById("netSalary");
+const expenseInputs = document.querySelectorAll(".expense");
+const balanceOutput = document.getElementById("balanceOutput");
+
+document.getElementById("calculateBalance").addEventListener("click", () => {
+  const net = parseFloat(netSalaryInput.value) || 0;
+  let totalExpenses = 0;
+
+  expenseInputs.forEach(input => {
+    totalExpenses += parseFloat(input.value) || 0;
+  });
+
+  const balance = net - totalExpenses;
+  balanceOutput.textContent = balance.toFixed(2);
+
+  // Save to localStorage
+  saveData(net, totalExpenses, balance);
+});
+
+// ----------------------
+// 4. Save/Load Functions
+// ----------------------
+function saveData(net, expenses, balance) {
+  const data = {
+    net, expenses, balance,
+    timestamp: new Date().toISOString()
+  };
+  localStorage.setItem("smartcents_data", JSON.stringify(data));
+}
+
+function loadSavedData() {
+  const data = JSON.parse(localStorage.getItem("smartcents_data"));
+  if (!data) return;
+
+  netSalaryInput.value = data.net;
+  const values = Object.values(data);
+  balanceOutput.textContent = data.balance.toFixed(2);
+}
