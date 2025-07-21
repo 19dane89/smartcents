@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartCents - Budget Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -67,6 +68,10 @@
       border-radius: 5px;
       text-align: center;
     }
+
+    canvas {
+      margin-top: 30px;
+    }
   </style>
 </head>
 
@@ -111,6 +116,7 @@
     <button onclick="calculateBalance()">Calculate Balance</button>
 
     <div class="result" id="result"></div>
+    <canvas id="savingsChart" width="400" height="200"></canvas>
   </div>
 
   <script>
@@ -140,6 +146,41 @@
       const balance = income - totalExpenses;
       document.getElementById("result").innerHTML =
         `<strong>Remaining Balance:</strong> R${balance.toFixed(2)}`;
+
+      drawChart();
+    }
+
+    function drawChart() {
+      const base = 20000;
+      const data = [];
+      for (let i = 0; i < 5; i++) {
+        data.push(base * Math.pow(1.1, i));
+      }
+      const ctx = document.getElementById('savingsChart').getContext('2d');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['2025', '2026', '2027', '2028', '2029'],
+          datasets: [{
+            label: 'Annual Savings Goal (ZAR)',
+            data: data,
+            backgroundColor: '#6a11cb'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
     }
   </script>
 </body>
