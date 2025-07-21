@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SmartCents Dashboard</title>
+  <title>SmartCents Savings Tracker</title>
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
@@ -12,11 +12,15 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- jsPDF & html2canvas for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     /* Root colors & fonts */
     :root {
-      --color-primary-bg: #f0f7ff; /* Light blue base */
-      --color-primary-text: #0a3d62; /* Dark blue text */
+      --color-primary-bg: #f0f7ff;
+      --color-primary-text: #0a3d62;
       --color-electric-indigo: #5a2a83;
       --color-emerald-green: #27ae60;
       --color-sunset-orange: #eb5757;
@@ -39,14 +43,12 @@
       background: var(--color-primary-bg);
       color: var(--color-primary-text);
       overflow-x: hidden;
-      /* subtle blurred financial background */
       background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1470&q=80');
       background-size: cover;
       background-position: center;
       position: relative;
     }
 
-    /* Glassmorphism overlay */
     body::before {
       content: "";
       position: fixed;
@@ -58,7 +60,7 @@
     }
 
     header {
-      background: var(--color-glass-bg, var(--glass-bg));
+      background: var(--glass-bg);
       backdrop-filter: blur(var(--glass-blur));
       padding: 1.5rem 3rem;
       text-align: center;
@@ -95,11 +97,10 @@
       margin: 2rem auto 4rem;
       padding: 0 1.5rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: 1fr;
       gap: 2.5rem;
     }
 
-    /* Glass cards with neumorphic shadows */
     .glass-card {
       background: var(--glass-bg);
       border-radius: 25px;
@@ -121,7 +122,6 @@
         -10px -10px 25px #ffffffcc;
     }
 
-    /* Section titles */
     h2 {
       font-family: 'Poppins', sans-serif;
       font-weight: 700;
@@ -134,43 +134,12 @@
       gap: 0.6rem;
     }
 
-    /* Section divider (small bar) */
     .divider {
       height: 4px;
       width: 60px;
       background: linear-gradient(90deg, var(--color-electric-indigo), var(--color-emerald-green));
       border-radius: 20px;
       margin-bottom: 1.5rem;
-    }
-
-    /* Dropdown styling */
-    select {
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: 0.5rem 1.2rem;
-      border-radius: 12px;
-      border: 2px solid var(--color-electric-indigo);
-      background: rgba(255 255 255 / 0.85);
-      color: var(--color-electric-indigo);
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      margin-bottom: 1.5rem;
-      user-select: none;
-    }
-
-    select:hover,
-    select:focus {
-      background-color: var(--color-electric-indigo);
-      color: white;
-      outline: none;
-    }
-
-    /* Inputs grid */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1.5rem;
     }
 
     label {
@@ -181,25 +150,39 @@
       user-select: none;
     }
 
+    select,
     input[type="number"] {
-      width: 100%;
-      padding: 0.7rem 1rem;
-      border-radius: 12px;
-      border: 2px solid #ccc;
-      font-size: 1.1rem;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
       font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      border: 2px solid var(--color-electric-indigo);
+      background: rgba(255 255 255 / 0.85);
+      color: var(--color-electric-indigo);
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      margin-bottom: 1.5rem;
+      user-select: none;
+      width: 100%;
+      box-sizing: border-box;
     }
 
+    select:hover,
+    select:focus,
     input[type="number"]:focus {
+      background-color: var(--color-electric-indigo);
+      color: white;
       outline: none;
-      border-color: var(--color-emerald-green);
-      box-shadow: 0 0 8px var(--color-emerald-green);
-      background: white;
-      color: var(--color-primary-text);
     }
 
-    /* Button */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
     button {
       background-color: var(--color-electric-indigo);
       color: white;
@@ -222,7 +205,20 @@
       box-shadow: 0 9px 25px rgba(64, 31, 102, 0.85);
     }
 
-    /* Result text */
+    #reportArea {
+      margin-top: 2rem;
+    }
+
+    #reportArea h3 {
+      color: var(--color-soft-purple);
+    }
+
+    #reportArea p {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--color-primary-text);
+    }
+
     #result {
       margin-top: 1.5rem;
       font-weight: 700;
@@ -230,7 +226,6 @@
       user-select: none;
     }
 
-    /* Alert color for overspending */
     #result.overspend {
       color: var(--color-sunset-orange);
     }
@@ -239,16 +234,9 @@
       color: var(--color-emerald-green);
     }
 
-    /* Chart container */
-    .chart-container {
-      margin-top: 1rem;
-      user-select: none;
-    }
-
     /* Responsive tweaks */
     @media (max-width: 480px) {
       main {
-        grid-template-columns: 1fr;
         padding: 0 1rem;
       }
       h2 {
@@ -268,80 +256,13 @@
   </header>
 
   <main>
-    <!-- Monthly Budget Input Card -->
-    <section class="glass-card" aria-label="Monthly Budget Input">
-      <h2>💰 Monthly Budget</h2>
+    <!-- Year & Month selectors -->
+    <section class="glass-card" aria-label="Select Year and Month">
+      <h2>📅 Select Year & Month</h2>
       <div class="divider"></div>
 
-      <label for="salary">Net Salary</label>
-      <input type="number" id="salary" placeholder="Enter your monthly net salary" min="0" />
-
-      <div class="grid">
-        <div>
-          <label for="rent">🏠 Rent</label>
-          <input type="number" class="expense" id="rent" min="0" />
-        </div>
-        <div>
-          <label for="internet">🌐 Internet</label>
-          <input type="number" class="expense" id="internet" min="0" />
-        </div>
-        <div>
-          <label for="cellphone">📱 Cellphone</label>
-          <input type="number" class="expense" id="cellphone" min="0" />
-        </div>
-        <div>
-          <label for="car">🚗 Car</label>
-          <input type="number" class="expense" id="car" min="0" />
-        </div>
-        <div>
-          <label for="household">🧹 Household</label>
-          <input type="number" class="expense" id="household" min="0" />
-        </div>
-        <div>
-          <label for="petrol">⛽ Petrol</label>
-          <input type="number" class="expense" id="petrol" min="0" />
-        </div>
-        <div>
-          <label for="toiletries">🧴 Toiletries</label>
-          <input type="number" class="expense" id="toiletries" min="0" />
-        </div>
-        <div>
-          <label for="pocket">👛 Pocket Money</label>
-          <input type="number" class="expense" id="pocket" min="0" />
-        </div>
-        <div>
-          <label for="entertainment">🎉 Entertainment</label>
-          <input type="number" class="expense" id="entertainment" min="0" />
-        </div>
-        <div>
-          <label for="savings">💵 Savings</label>
-          <input type="number" class="expense" id="savings" min="0" />
-        </div>
-        <div>
-          <label for="other1">➕ Other Expense 1</label>
-          <input type="number" class="expense" id="other1" min="0" />
-        </div>
-        <div>
-          <label for="other2">➕ Other Expense 2</label>
-          <input type="number" class="expense" id="other2" min="0" />
-        </div>
-        <div>
-          <label for="other3">➕ Other Expense 3</label>
-          <input type="number" class="expense" id="other3" min="0" />
-        </div>
-      </div>
-
-      <button onclick="calculateBalance()">Calculate Balance</button>
-      <h3 id="result">Balance will show here...</h3>
-    </section>
-
-    <!-- Savings Progress Chart Card -->
-    <section class="glass-card" aria-label="Savings Progress Chart">
-      <h2>📈 Savings Progress</h2>
-      <div class="divider"></div>
-
-      <label for="yearSelect">Select Year</label>
-      <select id="yearSelect" aria-describedby="yearHelp">
+      <label for="yearSelect">Year</label>
+      <select id="yearSelect" aria-describedby="yearHelp" aria-label="Select year">
         <option value="2025">2025</option>
         <option value="2026">2026</option>
         <option value="2027">2027</option>
@@ -349,37 +270,140 @@
         <option value="2029">2029</option>
       </select>
 
-      <div class="chart-container">
-        <canvas id="savingsChart" height="150" aria-label="Savings progress line chart" role="img"></canvas>
+      <label for="monthSelect">Month</label>
+      <select id="monthSelect" aria-label="Select month">
+        <option value="0">January</option>
+        <option value="1">February</option>
+        <option value="2">March</option>
+        <option value="3">April</option>
+        <option value="4">May</option>
+        <option value="5">June</option>
+        <option value="6">July</option>
+        <option value="7">August</option>
+        <option value="8">September</option>
+        <option value="9">October</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select>
+    </section>
+
+    <!-- Monthly inputs -->
+    <section class="glass-card" aria-label="Monthly Income and Expenses">
+      <h2>💰 Income & Expenses</h2>
+      <div class="divider"></div>
+
+      <label for="salaryInput">Net Salary</label>
+      <input type="number" id="salaryInput" placeholder="Enter your monthly net salary" min="0" />
+
+      <label for="expensesInput">Total Expenses</label>
+      <input type="number" id="expensesInput" placeholder="Enter your total expenses" min="0" />
+
+      <label for="savingsInput">Savings Added</label>
+      <input type="number" id="savingsInput" placeholder="Enter savings for this month" min="0" />
+
+      <button id="saveDataBtn">Save Monthly Data</button>
+      <h3 id="saveStatus"></h3>
+    </section>
+
+    <!-- Savings Progress Chart -->
+    <section class="glass-card" aria-label="Savings Progress Chart">
+      <h2>📈 Savings Progress</h2>
+      <div class="divider"></div>
+
+      <canvas id="savingsChart" height="250" aria-label="Savings progress line chart" role="img"></canvas>
+    </section>
+
+    <!-- Report Generation -->
+    <section class="glass-card" aria-label="Generate Report">
+      <h2>📝 Generate Report</h2>
+      <div class="divider"></div>
+
+      <button id="generateReportBtn">Generate PDF Report</button>
+
+      <div id="reportArea" hidden>
+        <h3>Report Preview</h3>
+        <p id="reportSummary"></p>
+        <canvas id="reportChart" height="250" aria-label="Report savings chart" role="img"></canvas>
       </div>
     </section>
   </main>
 
   <script>
-    // Sample savings data by year
-    const savingsDataByYear = {
-      2025: [20000, 22000, 24200, 26620, 29282],
-      2026: [21000, 23000, 25300, 27800, 30500],
-      2027: [22000, 24500, 26000, 28500, 32000],
-      2028: [23000, 25500, 27200, 30000, 33500],
-      2029: [24000, 26500, 28200, 31000, 34500],
+    // Utils for localStorage keys
+    const getStorageKey = (year) => `smartcents_savings_${year}`;
+    const getMonthName = (monthIndex) => {
+      return [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ][monthIndex] || '';
     };
 
-    // Chart.js setup for savings progress
-    const ctx = document.getElementById('savingsChart').getContext('2d');
+    // Initial Setup
+    const yearSelect = document.getElementById('yearSelect');
+    const monthSelect = document.getElementById('monthSelect');
+    const salaryInput = document.getElementById('salaryInput');
+    const expensesInput = document.getElementById('expensesInput');
+    const savingsInput = document.getElementById('savingsInput');
+    const saveDataBtn = document.getElementById('saveDataBtn');
+    const saveStatus = document.getElementById('saveStatus');
+    const reportArea = document.getElementById('reportArea');
+    const reportSummary = document.getElementById('reportSummary');
+    const generateReportBtn = document.getElementById('generateReportBtn');
+
     let savingsChart = null;
+    let reportChart = null;
 
-    function createChart(year) {
-      const dataPoints = savingsDataByYear[year] || savingsDataByYear['2025'];
+    // Load or initialize year data in localStorage
+    function loadYearData(year) {
+      let data = localStorage.getItem(getStorageKey(year));
+      if (!data) {
+        // Initialize 12 months with zeros
+        data = Array(12).fill(null).map(() => ({
+          salary: 0,
+          expenses: 0,
+          savings: 0,
+        }));
+        localStorage.setItem(getStorageKey(year), JSON.stringify(data));
+      } else {
+        data = JSON.parse(data);
+      }
+      return data;
+    }
 
-      if (savingsChart) {
-        savingsChart.destroy();
+    // Save year data to localStorage
+    function saveYearData(year, data) {
+      localStorage.setItem(getStorageKey(year), JSON.stringify(data));
+    }
+
+    // Current loaded data & year
+    let currentYear = yearSelect.value;
+    let currentMonth = parseInt(monthSelect.value);
+    let yearData = loadYearData(currentYear);
+
+    // Populate inputs for selected month
+    function populateInputs() {
+      const monthData = yearData[currentMonth];
+      salaryInput.value = monthData.salary || 0;
+      expensesInput.value = monthData.expenses || 0;
+      savingsInput.value = monthData.savings || 0;
+    }
+
+    // Update savings chart for current year
+    function updateSavingsChart() {
+      const labels = [];
+      const dataPoints = [];
+      for (let i = 0; i < 12; i++) {
+        labels.push(getMonthName(i));
+        dataPoints.push(yearData[i]?.savings || 0);
       }
 
+      if (savingsChart) savingsChart.destroy();
+
+      const ctx = document.getElementById('savingsChart').getContext('2d');
       savingsChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+          labels: labels,
           datasets: [{
             label: 'Savings (ZAR)',
             data: dataPoints,
@@ -389,78 +413,204 @@
             tension: 0.4,
             pointRadius: 6,
             pointHoverRadius: 9,
-            pointBackgroundColor: 'var(--color-electric-indigo)',
-            borderWidth: 3,
-          }],
+            pointBackgroundColor: 'var(--color-emerald-green)',
+          }]
         },
         options: {
           responsive: true,
-          animation: { duration: 1000, easing: 'easeOutQuart' },
-          interaction: { mode: 'nearest', intersect: false },
+          interaction: {
+            mode: 'nearest',
+            intersect: false,
+          },
           plugins: {
             tooltip: {
-              backgroundColor: 'var(--color-electric-indigo)',
-              titleFont: { weight: '700' },
-              bodyFont: { weight: '600' },
-              cornerRadius: 6,
-              padding: 10,
-              displayColors: false,
+              enabled: true,
+              callbacks: {
+                label: ctx => `R${ctx.parsed.y.toFixed(2)}`
+              }
             },
             legend: {
               labels: {
-                color: 'var(--color-primary-text)',
-                font: { weight: '700', size: 14 },
-              },
-            },
+                color: 'var(--color-electric-indigo)',
+                font: { weight: 'bold', size: 14 }
+              }
+            }
           },
           scales: {
-            x: {
-              ticks: { color: 'var(--color-primary-text)', font: { weight: '600' } },
-              grid: { color: '#ddd', borderColor: 'transparent' },
-            },
             y: {
               beginAtZero: true,
               ticks: {
-                color: 'var(--color-primary-text)',
-                font: { weight: '600' },
-                callback: val => `R${val.toLocaleString()}`,
-              },
-              grid: { color: '#eee', borderColor: 'transparent' },
+                color: 'var(--color-electric-indigo)',
+                font: { weight: '600' }
+              }
             },
-          },
-        },
+            x: {
+              ticks: {
+                color: 'var(--color-electric-indigo)',
+                font: { weight: '600' }
+              }
+            }
+          }
+        }
       });
     }
 
-    // Initialize chart for default year
-    createChart('2025');
-
-    // Update chart on year select change
-    document.getElementById('yearSelect').addEventListener('change', (e) => {
-      createChart(e.target.value);
+    // Load inputs on change
+    yearSelect.addEventListener('change', () => {
+      currentYear = yearSelect.value;
+      yearData = loadYearData(currentYear);
+      populateInputs();
+      updateSavingsChart();
+      hideReport();
     });
 
-    // Calculate balance function with alert colors
-    function calculateBalance() {
-      const salary = parseFloat(document.getElementById('salary').value) || 0;
-      const expenses = document.querySelectorAll('.expense');
-      let totalExpenses = 0;
-      expenses.forEach(exp => {
-        totalExpenses += parseFloat(exp.value) || 0;
-      });
-      const balance = salary - totalExpenses;
+    monthSelect.addEventListener('change', () => {
+      currentMonth = parseInt(monthSelect.value);
+      populateInputs();
+      hideReport();
+    });
 
-      const resultEl = document.getElementById('result');
-      if (balance < 0) {
-        resultEl.classList.remove('positive');
-        resultEl.classList.add('overspend');
-        resultEl.textContent = `⚠️ Over budget by R${Math.abs(balance).toFixed(2)}`;
-      } else {
-        resultEl.classList.remove('overspend');
-        resultEl.classList.add('positive');
-        resultEl.textContent = `✅ Remaining Balance: R${balance.toFixed(2)}`;
+    // Save monthly data button
+    saveDataBtn.addEventListener('click', () => {
+      const salaryVal = parseFloat(salaryInput.value) || 0;
+      const expensesVal = parseFloat(expensesInput.value) || 0;
+      const savingsVal = parseFloat(savingsInput.value) || 0;
+
+      // Save current month data in yearData array
+      yearData[currentMonth] = {
+        salary: salaryVal,
+        expenses: expensesVal,
+        savings: savingsVal,
+      };
+
+      saveYearData(currentYear, yearData);
+      updateSavingsChart();
+
+      saveStatus.textContent = `Data saved for ${getMonthName(currentMonth)} ${currentYear}`;
+      saveStatus.style.color = 'var(--color-emerald-green)';
+
+      setTimeout(() => {
+        saveStatus.textContent = '';
+      }, 3500);
+
+      hideReport();
+    });
+
+    // Report generation
+    function hideReport() {
+      reportArea.hidden = true;
+      if (reportChart) {
+        reportChart.destroy();
+        reportChart = null;
       }
     }
+
+    generateReportBtn.addEventListener('click', async () => {
+      reportArea.hidden = false;
+
+      // Summary
+      const monthly = yearData[currentMonth];
+      const income = monthly.salary || 0;
+      const expenses = monthly.expenses || 0;
+      const savings = monthly.savings || 0;
+      const balance = income - expenses;
+
+      reportSummary.innerHTML = `
+        <strong>${getMonthName(currentMonth)} ${currentYear} Report</strong><br>
+        Income (Salary): R${income.toFixed(2)}<br>
+        Expenses: R${expenses.toFixed(2)}<br>
+        Savings Added: R${savings.toFixed(2)}<br>
+        Balance: R${balance.toFixed(2)}<br>
+      `;
+
+      // Prepare chart data for report
+      const labels = Array.from({ length: 12 }, (_, i) => getMonthName(i));
+      const savingsData = yearData.map(m => m?.savings || 0);
+
+      const ctxReport = document.getElementById('reportChart').getContext('2d');
+      if (reportChart) reportChart.destroy();
+
+      reportChart = new Chart(ctxReport, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Savings (ZAR)',
+              data: savingsData,
+              backgroundColor: 'var(--color-emerald-green)',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: { color: 'var(--color-electric-indigo)' }
+            },
+            tooltip: {
+              enabled: true,
+              callbacks: {
+                label: ctx => `R${ctx.parsed.y.toFixed(2)}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: 'var(--color-electric-indigo)' }
+            },
+            x: {
+              ticks: { color: 'var(--color-electric-indigo)' }
+            }
+          }
+        }
+      });
+
+      // Generate PDF after slight delay to ensure canvas renders
+      setTimeout(generatePDF, 300);
+    });
+
+    async function generatePDF() {
+      const { jsPDF } = window.jspdf;
+
+      // Select report section to capture
+      const reportSection = document.getElementById('reportArea');
+
+      // Use html2canvas to capture report as image
+      const canvas = await html2canvas(reportSection, { scale: 2 });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // Create PDF document
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Add Title
+      pdf.setFontSize(22);
+      pdf.setTextColor('#5a2a83');
+      pdf.text(`SmartCents Report - ${getMonthName(currentMonth)} ${currentYear}`, pageWidth / 2, 40, { align: 'center' });
+
+      // Add Image of report section
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgWidth = pageWidth - 80;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 40, 60, imgWidth, imgHeight);
+
+      // Save file
+      pdf.save(`SmartCents_Report_${currentYear}_${currentMonth + 1}.pdf`);
+    }
+
+    // Initialize UI with current values
+    populateInputs();
+    updateSavingsChart();
   </script>
 </body>
 
