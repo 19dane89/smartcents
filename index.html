@@ -5,205 +5,257 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SmartCents Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    /* Root variables for light and dark mode */
+    /* Root colors & fonts */
     :root {
-      --color-primary: #5a2a83; /* Deep purple */
-      --color-secondary: #f2994a; /* Warm orange */
-      --color-accent1: #27ae60; /* Emerald green */
-      --color-accent2: #eb5757; /* Soft red */
-      --color-bg-light: #f9fafc;
-      --color-bg-dark: #121217;
-      --color-text-light: #1b2a4e;
-      --color-text-dark: #e0e0e0;
-      --color-card-light: #ffffff;
-      --color-card-dark: #1f1f2e;
-      --shadow-light: rgba(0, 0, 0, 0.1);
-      --shadow-dark: rgba(0, 0, 0, 0.7);
-      --input-border-light: #ccc;
-      --input-border-dark: #444;
-      --button-bg: var(--color-primary);
-      --button-hover-bg: #4a2370;
+      --color-primary-bg: #f0f7ff; /* Light blue base */
+      --color-primary-text: #0a3d62; /* Dark blue text */
+      --color-electric-indigo: #5a2a83;
+      --color-emerald-green: #27ae60;
+      --color-sunset-orange: #eb5757;
+      --color-soft-purple: #8e44ad;
+      --color-pastel-yellow: #f6e58d;
+
+      --shadow-light: rgba(0, 0, 0, 0.12);
+      --shadow-dark: rgba(90, 42, 131, 0.15);
+
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-blur: 14px;
     }
 
-    /* Dark mode toggle */
-    body.dark {
-      background: var(--color-bg-dark);
-      color: var(--color-text-dark);
-    }
-
-    body.dark header {
-      background-color: var(--color-primary);
-      box-shadow: 0 4px 8px var(--shadow-dark);
-    }
-
-    body.dark .card {
-      background: var(--color-card-dark);
-      box-shadow: 0 6px 14px var(--shadow-dark);
-    }
-
-    body.dark input,
-    body.dark button {
-      border-color: var(--input-border-dark);
-    }
-
+    html,
     body {
-      font-family: 'Inter', sans-serif;
       margin: 0;
-      background: var(--color-bg-light);
-      color: var(--color-text-light);
-      transition: background 0.3s ease, color 0.3s ease;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--color-primary-bg);
+      color: var(--color-primary-text);
+      overflow-x: hidden;
+      /* subtle blurred financial background */
+      background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1470&q=80');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    /* Glassmorphism overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(255 255 255 / 0.8);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      z-index: -1;
     }
 
     header {
-      background-color: var(--color-primary);
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 8px var(--shadow-light);
+      background: var(--color-glass-bg, var(--glass-bg));
+      backdrop-filter: blur(var(--glass-blur));
+      padding: 1.5rem 3rem;
+      text-align: center;
+      box-shadow:
+        4px 4px 10px var(--shadow-light),
+        -4px -4px 10px #fff;
+      border-radius: 0 0 30px 30px;
+      user-select: none;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     header h1 {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
       font-weight: 700;
-      font-size: 1.8rem;
-      letter-spacing: 2px;
-      user-select: none;
+      font-size: 2.8rem;
+      color: var(--color-electric-indigo);
+      text-shadow: 0 2px 5px rgba(90, 42, 131, 0.35);
     }
 
-    header span {
-      font-weight: 500;
-      font-size: 1rem;
-      opacity: 0.85;
+    header p {
+      margin: 0.4rem 0 0 0;
+      font-weight: 600;
       font-style: italic;
-    }
-
-    .container {
-      padding: 2rem;
-      max-width: 1100px;
-      margin: auto;
-    }
-
-    .card {
-      background: var(--color-card-light);
-      border-radius: 14px;
-      padding: 2rem 2.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 6px 12px var(--shadow-light);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      will-change: transform;
-    }
-
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
-    }
-
-    h2 {
-      margin-top: 0;
-      font-weight: 700;
-      font-size: 1.9rem;
-      color: var(--color-primary);
+      color: var(--color-soft-purple);
+      font-size: 1.2rem;
       user-select: none;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 2rem auto 4rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2.5rem;
+    }
+
+    /* Glass cards with neumorphic shadows */
+    .glass-card {
+      background: var(--glass-bg);
+      border-radius: 25px;
+      padding: 2rem 2.5rem;
+      box-shadow:
+        6px 6px 15px var(--shadow-light),
+        -6px -6px 15px #ffffff;
+      backdrop-filter: blur(var(--glass-blur));
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-8px);
+      box-shadow:
+        10px 10px 25px var(--shadow-dark),
+        -10px -10px 25px #ffffffcc;
+    }
+
+    /* Section titles */
+    h2 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--color-electric-indigo);
+      margin-bottom: 1rem;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Section divider (small bar) */
+    .divider {
+      height: 4px;
+      width: 60px;
+      background: linear-gradient(90deg, var(--color-electric-indigo), var(--color-emerald-green));
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Dropdown styling */
+    select {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 12px;
+      border: 2px solid var(--color-electric-indigo);
+      background: rgba(255 255 255 / 0.85);
+      color: var(--color-electric-indigo);
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      margin-bottom: 1.5rem;
+      user-select: none;
+    }
+
+    select:hover,
+    select:focus {
+      background-color: var(--color-electric-indigo);
+      color: white;
+      outline: none;
+    }
+
+    /* Inputs grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1.5rem;
     }
 
     label {
       font-weight: 600;
       display: block;
-      margin-top: 1.2rem;
-      font-size: 1rem;
-      color: var(--color-primary);
+      margin-bottom: 0.3rem;
+      color: var(--color-electric-indigo);
+      user-select: none;
     }
 
     input[type="number"] {
       width: 100%;
-      padding: 0.75rem 1rem;
-      margin-top: 0.3rem;
-      border-radius: 10px;
-      border: 2px solid var(--input-border-light);
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      border: 2px solid #ccc;
       font-size: 1.1rem;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      background: transparent;
-      color: var(--color-text-light);
+      font-family: 'Inter', sans-serif;
     }
 
     input[type="number"]:focus {
       outline: none;
-      border-color: var(--color-secondary);
-      box-shadow: 0 0 8px var(--color-secondary);
-      background: var(--color-bg-light);
-      color: var(--color-text-light);
+      border-color: var(--color-emerald-green);
+      box-shadow: 0 0 8px var(--color-emerald-green);
+      background: white;
+      color: var(--color-primary-text);
     }
 
+    /* Button */
     button {
-      background-color: var(--button-bg);
+      background-color: var(--color-electric-indigo);
       color: white;
-      padding: 0.9rem 2rem;
       border: none;
-      border-radius: 12px;
+      border-radius: 16px;
+      padding: 0.9rem 2.5rem;
+      font-weight: 700;
       font-size: 1.2rem;
       cursor: pointer;
-      margin-top: 1.8rem;
-      font-weight: 700;
-      box-shadow: 0 5px 12px rgba(90, 42, 131, 0.6);
+      box-shadow: 0 6px 15px rgba(90, 42, 131, 0.6);
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
       user-select: none;
+      margin-top: 1.8rem;
+      display: block;
+      width: fit-content;
     }
 
     button:hover {
-      background-color: var(--button-hover-bg);
-      box-shadow: 0 8px 20px rgba(74, 35, 112, 0.9);
+      background-color: #401f66;
+      box-shadow: 0 9px 25px rgba(64, 31, 102, 0.85);
     }
 
-    .result-text {
+    /* Result text */
+    #result {
       margin-top: 1.5rem;
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: var(--color-accent2);
+      font-weight: 700;
+      font-size: 1.4rem;
       user-select: none;
     }
 
+    /* Alert color for overspending */
+    #result.overspend {
+      color: var(--color-sunset-orange);
+    }
+
+    #result.positive {
+      color: var(--color-emerald-green);
+    }
+
+    /* Chart container */
     .chart-container {
-      margin-top: 2rem;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.7rem;
-    }
-
-    /* Dark mode toggle button */
-    .toggle-darkmode {
-      background: none;
-      border: 2px solid white;
-      color: white;
-      padding: 0.3rem 1rem;
-      font-size: 0.9rem;
-      border-radius: 20px;
-      cursor: pointer;
+      margin-top: 1rem;
       user-select: none;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .toggle-darkmode:hover {
-      background-color: white;
-      color: var(--color-primary);
     }
 
     /* Responsive tweaks */
     @media (max-width: 480px) {
-      header {
-        flex-direction: column;
-        gap: 0.6rem;
-        text-align: center;
-      }
-
-      .grid {
+      main {
         grid-template-columns: 1fr;
+        padding: 0 1rem;
+      }
+      h2 {
+        font-size: 1.6rem;
+      }
+      button {
+        width: 100%;
       }
     }
   </style>
@@ -211,88 +263,184 @@
 
 <body>
   <header>
-    <h1>SmartCents</h1>
-    <span>Personal Budget & Savings Tracker</span>
-    <button class="toggle-darkmode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <h1>SmartCents 💸</h1>
+    <p>Personal Budget & Savings Tracker</p>
   </header>
 
-  <div class="container">
-    <div class="card">
-      <h2>Monthly Budget</h2>
+  <main>
+    <!-- Monthly Budget Input Card -->
+    <section class="glass-card" aria-label="Monthly Budget Input">
+      <h2>💰 Monthly Budget</h2>
+      <div class="divider"></div>
+
       <label for="salary">Net Salary</label>
       <input type="number" id="salary" placeholder="Enter your monthly net salary" min="0" />
 
       <div class="grid">
         <div>
-          <label for="rent">Rent</label>
+          <label for="rent">🏠 Rent</label>
           <input type="number" class="expense" id="rent" min="0" />
         </div>
         <div>
-          <label for="internet">Internet</label>
+          <label for="internet">🌐 Internet</label>
           <input type="number" class="expense" id="internet" min="0" />
         </div>
         <div>
-          <label for="cellphone">Cellphone</label>
+          <label for="cellphone">📱 Cellphone</label>
           <input type="number" class="expense" id="cellphone" min="0" />
         </div>
         <div>
-          <label for="car">Car</label>
+          <label for="car">🚗 Car</label>
           <input type="number" class="expense" id="car" min="0" />
         </div>
         <div>
-          <label for="household">Household</label>
+          <label for="household">🧹 Household</label>
           <input type="number" class="expense" id="household" min="0" />
         </div>
         <div>
-          <label for="petrol">Petrol</label>
+          <label for="petrol">⛽ Petrol</label>
           <input type="number" class="expense" id="petrol" min="0" />
         </div>
         <div>
-          <label for="toiletries">Toiletries</label>
+          <label for="toiletries">🧴 Toiletries</label>
           <input type="number" class="expense" id="toiletries" min="0" />
         </div>
         <div>
-          <label for="pocket">Pocket Money</label>
+          <label for="pocket">👛 Pocket Money</label>
           <input type="number" class="expense" id="pocket" min="0" />
         </div>
         <div>
-          <label for="entertainment">Entertainment</label>
+          <label for="entertainment">🎉 Entertainment</label>
           <input type="number" class="expense" id="entertainment" min="0" />
         </div>
         <div>
-          <label for="savings">Savings</label>
+          <label for="savings">💵 Savings</label>
           <input type="number" class="expense" id="savings" min="0" />
         </div>
         <div>
-          <label for="other1">Other Expense 1</label>
+          <label for="other1">➕ Other Expense 1</label>
           <input type="number" class="expense" id="other1" min="0" />
         </div>
         <div>
-          <label for="other2">Other Expense 2</label>
+          <label for="other2">➕ Other Expense 2</label>
           <input type="number" class="expense" id="other2" min="0" />
         </div>
         <div>
-          <label for="other3">Other Expense 3</label>
+          <label for="other3">➕ Other Expense 3</label>
           <input type="number" class="expense" id="other3" min="0" />
         </div>
       </div>
 
       <button onclick="calculateBalance()">Calculate Balance</button>
-      <h3 id="result" class="result-text">Balance will show here...</h3>
-    </div>
+      <h3 id="result">Balance will show here...</h3>
+    </section>
 
-    <div class="card chart-container">
-      <h2>Savings Progress</h2>
-      <canvas id="savingsChart" height="120"></canvas>
-    </div>
-  </div>
+    <!-- Savings Progress Chart Card -->
+    <section class="glass-card" aria-label="Savings Progress Chart">
+      <h2>📈 Savings Progress</h2>
+      <div class="divider"></div>
+
+      <label for="yearSelect">Select Year</label>
+      <select id="yearSelect" aria-describedby="yearHelp">
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+      </select>
+
+      <div class="chart-container">
+        <canvas id="savingsChart" height="150" aria-label="Savings progress line chart" role="img"></canvas>
+      </div>
+    </section>
+  </main>
 
   <script>
-    // Dark mode toggle
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark');
+    // Sample savings data by year
+    const savingsDataByYear = {
+      2025: [20000, 22000, 24200, 26620, 29282],
+      2026: [21000, 23000, 25300, 27800, 30500],
+      2027: [22000, 24500, 26000, 28500, 32000],
+      2028: [23000, 25500, 27200, 30000, 33500],
+      2029: [24000, 26500, 28200, 31000, 34500],
+    };
+
+    // Chart.js setup for savings progress
+    const ctx = document.getElementById('savingsChart').getContext('2d');
+    let savingsChart = null;
+
+    function createChart(year) {
+      const dataPoints = savingsDataByYear[year] || savingsDataByYear['2025'];
+
+      if (savingsChart) {
+        savingsChart.destroy();
+      }
+
+      savingsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+          datasets: [{
+            label: 'Savings (ZAR)',
+            data: dataPoints,
+            borderColor: 'var(--color-emerald-green)',
+            backgroundColor: 'rgba(39, 174, 96, 0.25)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            pointBackgroundColor: 'var(--color-electric-indigo)',
+            borderWidth: 3,
+          }],
+        },
+        options: {
+          responsive: true,
+          animation: { duration: 1000, easing: 'easeOutQuart' },
+          interaction: { mode: 'nearest', intersect: false },
+          plugins: {
+            tooltip: {
+              backgroundColor: 'var(--color-electric-indigo)',
+              titleFont: { weight: '700' },
+              bodyFont: { weight: '600' },
+              cornerRadius: 6,
+              padding: 10,
+              displayColors: false,
+            },
+            legend: {
+              labels: {
+                color: 'var(--color-primary-text)',
+                font: { weight: '700', size: 14 },
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: { color: 'var(--color-primary-text)', font: { weight: '600' } },
+              grid: { color: '#ddd', borderColor: 'transparent' },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: 'var(--color-primary-text)',
+                font: { weight: '600' },
+                callback: val => `R${val.toLocaleString()}`,
+              },
+              grid: { color: '#eee', borderColor: 'transparent' },
+            },
+          },
+        },
+      });
     }
 
+    // Initialize chart for default year
+    createChart('2025');
+
+    // Update chart on year select change
+    document.getElementById('yearSelect').addEventListener('change', (e) => {
+      createChart(e.target.value);
+    });
+
+    // Calculate balance function with alert colors
     function calculateBalance() {
       const salary = parseFloat(document.getElementById('salary').value) || 0;
       const expenses = document.querySelectorAll('.expense');
@@ -301,102 +449,18 @@
         totalExpenses += parseFloat(exp.value) || 0;
       });
       const balance = salary - totalExpenses;
+
       const resultEl = document.getElementById('result');
       if (balance < 0) {
-        resultEl.style.color = 'var(--color-accent2)'; // red-ish for negative
+        resultEl.classList.remove('positive');
+        resultEl.classList.add('overspend');
         resultEl.textContent = `⚠️ Over budget by R${Math.abs(balance).toFixed(2)}`;
       } else {
-        resultEl.style.color = 'var(--color-accent1)'; // green-ish for positive
-        resultEl.textContent = `Remaining Balance: R${balance.toFixed(2)}`;
+        resultEl.classList.remove('overspend');
+        resultEl.classList.add('positive');
+        resultEl.textContent = `✅ Remaining Balance: R${balance.toFixed(2)}`;
       }
     }
-
-    // Gradient fill helper for chart
-    function getGradient(ctx, area) {
-      const gradient = ctx.createLinearGradient(0, 0, 0, area.bottom);
-      gradient.addColorStop(0, 'rgba(90, 42, 131, 0.6)');
-      gradient.addColorStop(1, 'rgba(90, 42, 131, 0.05)');
-      return gradient;
-    }
-
-    // Setup savings chart with smooth curves, gradient fill, and animations
-    const ctx = document.getElementById('savingsChart').getContext('2d');
-    const gradientFill = getGradient(ctx, ctx.canvas.getBoundingClientRect());
-
-    const savingsChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['2025', '2026', '2027', '2028', '2029'],
-        datasets: [{
-          label: 'Savings Goal (ZAR)',
-          data: [20000, 22000, 24200, 26620, 29282],
-          borderColor: 'var(--color-primary)',
-          backgroundColor: gradientFill,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 6,
-          pointHoverRadius: 9,
-          pointBackgroundColor: 'var(--color-secondary)',
-          borderWidth: 3,
-          hoverBorderWidth: 5,
-          hoverBackgroundColor: 'rgba(242, 158, 74, 0.3)'
-        }]
-      },
-      options: {
-        responsive: true,
-        interaction: {
-          mode: 'nearest',
-          intersect: false,
-        },
-        plugins: {
-          legend: {
-            labels: {
-              color: 'var(--color-primary)',
-              font: {
-                weight: '700',
-                size: 14
-              }
-            }
-          },
-          tooltip: {
-            backgroundColor: 'var(--color-primary)',
-            titleFont: { weight: '700' },
-            bodyFont: { weight: '600' },
-            padding: 10,
-            cornerRadius: 6,
-            displayColors: false
-          }
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: 'var(--color-primary)',
-              font: { weight: '600' }
-            },
-            grid: {
-              color: '#ddd',
-              borderColor: 'transparent'
-            }
-          },
-          y: {
-            beginAtZero: true,
-            ticks: {
-              color: 'var(--color-primary)',
-              font: { weight: '600' },
-              callback: value => `R${value.toLocaleString()}`
-            },
-            grid: {
-              color: '#eee',
-              borderColor: 'transparent'
-            }
-          }
-        },
-        animation: {
-          duration: 1300,
-          easing: 'easeOutQuart'
-        }
-      }
-    });
   </script>
 </body>
 
