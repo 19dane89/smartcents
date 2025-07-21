@@ -1,72 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartCents - Budget Tracker</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartCents Budget Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>SmartCents - Budget Tracker</h1>
-      <button id="toggleTheme">🌗</button>
+      <h1>SmartCents Budget Tracker</h1>
     </header>
 
-    <main>
-      <section id="authSection">
-        <h2>Login</h2>
-        <input type="email" id="emailInput" placeholder="Enter your email">
-        <button id="sendOtpBtn">Send OTP</button>
+    <main id="dashboard">
+      <h2>Welcome to your budget dashboard</h2>
 
-        <input type="text" id="otpInput" placeholder="Enter OTP" style="display:none">
-        <button id="verifyOtpBtn" style="display:none">Verify OTP</button>
-      </section>
+      <label>Net Salary: <input type="number" id="netSalary" /></label>
 
-      <section id="dashboard" style="display:none">
-        <h2>Welcome to SmartCents</h2>
-        <p>Here is your monthly budget dashboard:</p>
-        <div id="budgetForm">
-          <label>Net Salary: <input type="number" id="netSalary"></label>
-          <label>Rent: <input type="number" class="expense"></label>
-          <label>Internet/WiFi: <input type="number" class="expense"></label>
-          <label>Cellphone: <input type="number" class="expense"></label>
-          <label>Car: <input type="number" class="expense"></label>
-          <label>Household: <input type="number" class="expense"></label>
-          <label>Petrol: <input type="number" class="expense"></label>
-          <label>Toiletries: <input type="number" class="expense"></label>
-          <label>Pocket Money: <input type="number" class="expense"></label>
-          <label>Entertainment: <input type="number" class="expense"></label>
-          <label>Savings: <input type="number" class="expense"></label>
+      <h3>Expenses</h3>
+      <label>Rent: <input type="number" class="expense" id="rent" /></label>
+      <label>Internet/WiFi: <input type="number" class="expense" id="internet" /></label>
+      <label>Cellphone: <input type="number" class="expense" id="cellphone" /></label>
+      <label>Car: <input type="number" class="expense" id="car" /></label>
+      <label>Household: <input type="number" class="expense" id="household" /></label>
+      <label>Petrol: <input type="number" class="expense" id="petrol" /></label>
+      <label>Toiletries: <input type="number" class="expense" id="toiletries" /></label>
+      <label>Pocket Money: <input type="number" class="expense" id="pocketMoney" /></label>
+      <label>Entertainment: <input type="number" class="expense" id="entertainment" /></label>
+      <label>Savings: <input type="number" class="expense" id="savings" /></label>
 
-          <h3>Credit Repayments</h3>
-          <div id="creditFields"></div>
-
-          <button id="calculateBalance">Calculate Balance</button>
-          <h3>Remaining Balance: R<span id="balanceOutput">0.00</span></h3>
-        </div>
-      </section>
-    </main>
-  </div>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDZkY748LmNNlWKi2s24_xOsYD9-SLe4W4",
-    authDomain: "smartcents-2b824.firebaseapp.com",
-    projectId: "smartcents-2b824",
-    storageBucket: "smartcents-2b824.firebasestorage.app",
-    messagingSenderId: "411677208238",
-    appId: "1:411677208238:web:9d6762aa6d9b2ec336473f"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
-  <script src="app.js"></script>
-</body>
-</html>
+      <h3>Credit Repayments</h3>
+      <div id="creditRepayments">
+        <!-- 10 credit repayment input fields -->
+        <input type="number" class="expense credit" id="credit0" placeholder="Credit 1" />
+        <
