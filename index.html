@@ -3,73 +3,167 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SmartCents Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* Root variables for light and dark mode */
+    :root {
+      --color-primary: #5a2a83; /* Deep purple */
+      --color-secondary: #f2994a; /* Warm orange */
+      --color-accent1: #27ae60; /* Emerald green */
+      --color-accent2: #eb5757; /* Soft red */
+      --color-bg-light: #f9fafc;
+      --color-bg-dark: #121217;
+      --color-text-light: #1b2a4e;
+      --color-text-dark: #e0e0e0;
+      --color-card-light: #ffffff;
+      --color-card-dark: #1f1f2e;
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --shadow-dark: rgba(0, 0, 0, 0.7);
+      --input-border-light: #ccc;
+      --input-border-dark: #444;
+      --button-bg: var(--color-primary);
+      --button-hover-bg: #4a2370;
+    }
+
+    /* Dark mode toggle */
+    body.dark {
+      background: var(--color-bg-dark);
+      color: var(--color-text-dark);
+    }
+
+    body.dark header {
+      background-color: var(--color-primary);
+      box-shadow: 0 4px 8px var(--shadow-dark);
+    }
+
+    body.dark .card {
+      background: var(--color-card-dark);
+      box-shadow: 0 6px 14px var(--shadow-dark);
+    }
+
+    body.dark input,
+    body.dark button {
+      border-color: var(--input-border-dark);
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
-      background: linear-gradient(135deg, #e0f0ff, #ffffff);
-      color: #1b2a4e;
+      background: var(--color-bg-light);
+      color: var(--color-text-light);
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     header {
-      background-color: #2980b9;
+      background-color: var(--color-primary);
       color: white;
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 8px var(--shadow-light);
+    }
+
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      user-select: none;
+    }
+
+    header span {
+      font-weight: 500;
+      font-size: 1rem;
+      opacity: 0.85;
+      font-style: italic;
     }
 
     .container {
       padding: 2rem;
-      max-width: 1200px;
+      max-width: 1100px;
       margin: auto;
     }
 
     .card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s;
+      background: var(--color-card-light);
+      border-radius: 14px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 6px 12px var(--shadow-light);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform;
     }
 
     .card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
     }
 
-    h1, h2 {
+    h2 {
       margin-top: 0;
+      font-weight: 700;
+      font-size: 1.9rem;
+      color: var(--color-primary);
+      user-select: none;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      color: var(--color-primary);
     }
 
     input[type="number"] {
       width: 100%;
-      padding: 0.8rem;
-      margin: 0.5rem 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      margin-top: 0.3rem;
+      border-radius: 10px;
+      border: 2px solid var(--input-border-light);
+      font-size: 1.1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      background: transparent;
+      color: var(--color-text-light);
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--color-secondary);
+      box-shadow: 0 0 8px var(--color-secondary);
+      background: var(--color-bg-light);
+      color: var(--color-text-light);
     }
 
     button {
-      background-color: #3498db;
+      background-color: var(--button-bg);
       color: white;
-      padding: 0.8rem 1.5rem;
+      padding: 0.9rem 2rem;
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 12px;
+      font-size: 1.2rem;
       cursor: pointer;
-      margin-top: 1rem;
+      margin-top: 1.8rem;
+      font-weight: 700;
+      box-shadow: 0 5px 12px rgba(90, 42, 131, 0.6);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
     }
 
     button:hover {
-      background-color: #2980b9;
+      background-color: var(--button-hover-bg);
+      box-shadow: 0 8px 20px rgba(74, 35, 112, 0.9);
+    }
+
+    .result-text {
+      margin-top: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--color-accent2);
+      user-select: none;
     }
 
     .chart-container {
@@ -78,14 +172,39 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.7rem;
     }
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-top: 1rem;
+    /* Dark mode toggle button */
+    .toggle-darkmode {
+      background: none;
+      border: 2px solid white;
+      color: white;
+      padding: 0.3rem 1rem;
+      font-size: 0.9rem;
+      border-radius: 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .toggle-darkmode:hover {
+      background-color: white;
+      color: var(--color-primary);
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        gap: 0.6rem;
+        text-align: center;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -94,111 +213,187 @@
   <header>
     <h1>SmartCents</h1>
     <span>Personal Budget & Savings Tracker</span>
+    <button class="toggle-darkmode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
   </header>
 
   <div class="container">
     <div class="card">
       <h2>Monthly Budget</h2>
       <label for="salary">Net Salary</label>
-      <input type="number" id="salary" placeholder="Enter your monthly net salary" />
+      <input type="number" id="salary" placeholder="Enter your monthly net salary" min="0" />
 
       <div class="grid">
         <div>
-          <label>Rent</label>
-          <input type="number" class="expense" id="rent">
+          <label for="rent">Rent</label>
+          <input type="number" class="expense" id="rent" min="0" />
         </div>
         <div>
-          <label>Internet</label>
-          <input type="number" class="expense" id="internet">
+          <label for="internet">Internet</label>
+          <input type="number" class="expense" id="internet" min="0" />
         </div>
         <div>
-          <label>Cellphone</label>
-          <input type="number" class="expense" id="cellphone">
+          <label for="cellphone">Cellphone</label>
+          <input type="number" class="expense" id="cellphone" min="0" />
         </div>
         <div>
-          <label>Car</label>
-          <input type="number" class="expense" id="car">
+          <label for="car">Car</label>
+          <input type="number" class="expense" id="car" min="0" />
         </div>
         <div>
-          <label>Household</label>
-          <input type="number" class="expense" id="household">
+          <label for="household">Household</label>
+          <input type="number" class="expense" id="household" min="0" />
         </div>
         <div>
-          <label>Petrol</label>
-          <input type="number" class="expense" id="petrol">
+          <label for="petrol">Petrol</label>
+          <input type="number" class="expense" id="petrol" min="0" />
         </div>
         <div>
-          <label>Toiletries</label>
-          <input type="number" class="expense" id="toiletries">
+          <label for="toiletries">Toiletries</label>
+          <input type="number" class="expense" id="toiletries" min="0" />
         </div>
         <div>
-          <label>Pocket Money</label>
-          <input type="number" class="expense" id="pocket">
+          <label for="pocket">Pocket Money</label>
+          <input type="number" class="expense" id="pocket" min="0" />
         </div>
         <div>
-          <label>Entertainment</label>
-          <input type="number" class="expense" id="entertainment">
+          <label for="entertainment">Entertainment</label>
+          <input type="number" class="expense" id="entertainment" min="0" />
         </div>
         <div>
-          <label>Savings</label>
-          <input type="number" class="expense" id="savings">
+          <label for="savings">Savings</label>
+          <input type="number" class="expense" id="savings" min="0" />
         </div>
         <div>
-          <label>Other Expense 1</label>
-          <input type="number" class="expense" id="other1">
+          <label for="other1">Other Expense 1</label>
+          <input type="number" class="expense" id="other1" min="0" />
         </div>
         <div>
-          <label>Other Expense 2</label>
-          <input type="number" class="expense" id="other2">
+          <label for="other2">Other Expense 2</label>
+          <input type="number" class="expense" id="other2" min="0" />
         </div>
         <div>
-          <label>Other Expense 3</label>
-          <input type="number" class="expense" id="other3">
+          <label for="other3">Other Expense 3</label>
+          <input type="number" class="expense" id="other3" min="0" />
         </div>
       </div>
 
       <button onclick="calculateBalance()">Calculate Balance</button>
-      <h3 id="result">Balance will show here...</h3>
+      <h3 id="result" class="result-text">Balance will show here...</h3>
     </div>
 
     <div class="card chart-container">
       <h2>Savings Progress</h2>
-      <canvas id="savingsChart" height="100"></canvas>
+      <canvas id="savingsChart" height="120"></canvas>
     </div>
   </div>
 
   <script>
+    // Dark mode toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+
     function calculateBalance() {
-      const salary = parseFloat(document.getElementById("salary").value) || 0;
-      const expenses = document.querySelectorAll(".expense");
+      const salary = parseFloat(document.getElementById('salary').value) || 0;
+      const expenses = document.querySelectorAll('.expense');
       let totalExpenses = 0;
       expenses.forEach(exp => {
         totalExpenses += parseFloat(exp.value) || 0;
       });
       const balance = salary - totalExpenses;
-      document.getElementById("result").innerText = `Remaining Balance: R${balance.toFixed(2)}`;
+      const resultEl = document.getElementById('result');
+      if (balance < 0) {
+        resultEl.style.color = 'var(--color-accent2)'; // red-ish for negative
+        resultEl.textContent = `⚠️ Over budget by R${Math.abs(balance).toFixed(2)}`;
+      } else {
+        resultEl.style.color = 'var(--color-accent1)'; // green-ish for positive
+        resultEl.textContent = `Remaining Balance: R${balance.toFixed(2)}`;
+      }
     }
 
-    const ctx = document.getElementById('savingsChart');
-    new Chart(ctx, {
+    // Gradient fill helper for chart
+    function getGradient(ctx, area) {
+      const gradient = ctx.createLinearGradient(0, 0, 0, area.bottom);
+      gradient.addColorStop(0, 'rgba(90, 42, 131, 0.6)');
+      gradient.addColorStop(1, 'rgba(90, 42, 131, 0.05)');
+      return gradient;
+    }
+
+    // Setup savings chart with smooth curves, gradient fill, and animations
+    const ctx = document.getElementById('savingsChart').getContext('2d');
+    const gradientFill = getGradient(ctx, ctx.canvas.getBoundingClientRect());
+
+    const savingsChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: ['2025', '2026', '2027', '2028', '2029'],
         datasets: [{
-          label: 'Savings Goal (R)',
+          label: 'Savings Goal (ZAR)',
           data: [20000, 22000, 24200, 26620, 29282],
-          borderColor: '#3498db',
-          backgroundColor: 'rgba(52, 152, 219, 0.2)',
-          tension: 0.3,
-          fill: true
+          borderColor: 'var(--color-primary)',
+          backgroundColor: gradientFill,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          pointBackgroundColor: 'var(--color-secondary)',
+          borderWidth: 3,
+          hoverBorderWidth: 5,
+          hoverBackgroundColor: 'rgba(242, 158, 74, 0.3)'
         }]
       },
       options: {
         responsive: true,
+        interaction: {
+          mode: 'nearest',
+          intersect: false,
+        },
         plugins: {
           legend: {
-            display: true
+            labels: {
+              color: 'var(--color-primary)',
+              font: {
+                weight: '700',
+                size: 14
+              }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'var(--color-primary)',
+            titleFont: { weight: '700' },
+            bodyFont: { weight: '600' },
+            padding: 10,
+            cornerRadius: 6,
+            displayColors: false
           }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: 'var(--color-primary)',
+              font: { weight: '600' }
+            },
+            grid: {
+              color: '#ddd',
+              borderColor: 'transparent'
+            }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: 'var(--color-primary)',
+              font: { weight: '600' },
+              callback: value => `R${value.toLocaleString()}`
+            },
+            grid: {
+              color: '#eee',
+              borderColor: 'transparent'
+            }
+          }
+        },
+        animation: {
+          duration: 1300,
+          easing: 'easeOutQuart'
         }
       }
     });
