@@ -4,184 +4,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartCents - Budget Tracker</title>
+  <title>SmartCents Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom right, #1f1c2c, #928dab);
-      color: #fff;
+      font-family: 'Inter', sans-serif;
       margin: 0;
-      padding: 0;
+      background: linear-gradient(135deg, #e0f0ff, #ffffff);
+      color: #1b2a4e;
+    }
+
+    header {
+      background-color: #2980b9;
+      color: white;
+      padding: 1rem 2rem;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      min-height: 100vh;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .container {
-      width: 100%;
-      max-width: 600px;
-      margin: 20px;
-      padding: 20px;
-      background-color: rgba(0, 0, 0, 0.7);
-      border-radius: 10px;
-      box-sizing: border-box;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
     }
 
     h1, h2 {
-      text-align: center;
-    }
-
-    label {
-      display: block;
-      margin: 10px 0 5px;
+      margin-top: 0;
     }
 
     input[type="number"] {
       width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
     }
 
     button {
-      width: 100%;
-      padding: 15px;
-      background-color: #6a11cb;
-      border: none;
-      border-radius: 5px;
+      background-color: #3498db;
       color: white;
-      font-size: 16px;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
       cursor: pointer;
+      margin-top: 1rem;
     }
 
     button:hover {
-      background-color: #2575fc;
+      background-color: #2980b9;
     }
 
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #333;
-      border-radius: 5px;
-      text-align: center;
+    .chart-container {
+      margin-top: 2rem;
     }
 
-    canvas {
-      margin-top: 30px;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 1rem;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <header>
     <h1>SmartCents</h1>
-    <h2>Monthly Budget Tracker</h2>
+    <span>Personal Budget & Savings Tracker</span>
+  </header>
 
-    <label for="income">Net Salary:</label>
-    <input type="number" id="income" placeholder="Enter your salary" />
+  <div class="container">
+    <div class="card">
+      <h2>Monthly Budget</h2>
+      <label for="salary">Net Salary</label>
+      <input type="number" id="salary" placeholder="Enter your monthly net salary" />
 
-    <label for="rent">Rent:</label>
-    <input type="number" id="rent" placeholder="e.g. 5000" />
+      <div class="grid">
+        <div>
+          <label>Rent</label>
+          <input type="number" class="expense" id="rent">
+        </div>
+        <div>
+          <label>Internet</label>
+          <input type="number" class="expense" id="internet">
+        </div>
+        <div>
+          <label>Cellphone</label>
+          <input type="number" class="expense" id="cellphone">
+        </div>
+        <div>
+          <label>Car</label>
+          <input type="number" class="expense" id="car">
+        </div>
+        <div>
+          <label>Household</label>
+          <input type="number" class="expense" id="household">
+        </div>
+        <div>
+          <label>Petrol</label>
+          <input type="number" class="expense" id="petrol">
+        </div>
+        <div>
+          <label>Toiletries</label>
+          <input type="number" class="expense" id="toiletries">
+        </div>
+        <div>
+          <label>Pocket Money</label>
+          <input type="number" class="expense" id="pocket">
+        </div>
+        <div>
+          <label>Entertainment</label>
+          <input type="number" class="expense" id="entertainment">
+        </div>
+        <div>
+          <label>Savings</label>
+          <input type="number" class="expense" id="savings">
+        </div>
+        <div>
+          <label>Other Expense 1</label>
+          <input type="number" class="expense" id="other1">
+        </div>
+        <div>
+          <label>Other Expense 2</label>
+          <input type="number" class="expense" id="other2">
+        </div>
+        <div>
+          <label>Other Expense 3</label>
+          <input type="number" class="expense" id="other3">
+        </div>
+      </div>
 
-    <label for="wifi">Internet / WiFi:</label>
-    <input type="number" id="wifi" placeholder="e.g. 600" />
+      <button onclick="calculateBalance()">Calculate Balance</button>
+      <h3 id="result">Balance will show here...</h3>
+    </div>
 
-    <label for="car">Car Installment:</label>
-    <input type="number" id="car" placeholder="e.g. 3000" />
-
-    <label for="petrol">Petrol:</label>
-    <input type="number" id="petrol" placeholder="e.g. 1500" />
-
-    <label for="food">Groceries / Food:</label>
-    <input type="number" id="food" placeholder="e.g. 2500" />
-
-    <label for="savings">Savings:</label>
-    <input type="number" id="savings" placeholder="e.g. 2000" />
-
-    <label for="other1">Other Expenses 1:</label>
-    <input type="number" id="other1" placeholder="e.g. 1200" />
-
-    <label for="other2">Other Expenses 2:</label>
-    <input type="number" id="other2" placeholder="e.g. 800" />
-
-    <label for="other3">Other Expenses 3:</label>
-    <input type="number" id="other3" placeholder="e.g. 600" />
-
-    <label for="other4">Other Expenses 4:</label>
-    <input type="number" id="other4" placeholder="e.g. 400" />
-
-    <button onclick="calculateBalance()">Calculate Balance</button>
-
-    <div class="result" id="result"></div>
-    <canvas id="savingsChart" width="400" height="200"></canvas>
+    <div class="card chart-container">
+      <h2>Savings Progress</h2>
+      <canvas id="savingsChart" height="100"></canvas>
+    </div>
   </div>
 
   <script>
-    const fields = [
-      "income", "rent", "wifi", "car", "petrol", "food", "savings",
-      "other1", "other2", "other3", "other4"
-    ];
-
-    window.onload = () => {
-      fields.forEach(field => {
-        const saved = localStorage.getItem(field);
-        if (saved) document.getElementById(field).value = saved;
-      });
-      calculateBalance();
-    };
-
     function calculateBalance() {
-      let income = parseFloat(document.getElementById("income").value) || 0;
+      const salary = parseFloat(document.getElementById("salary").value) || 0;
+      const expenses = document.querySelectorAll(".expense");
       let totalExpenses = 0;
-
-      fields.forEach(field => {
-        const value = parseFloat(document.getElementById(field).value) || 0;
-        localStorage.setItem(field, value);
-        if (field !== "income") totalExpenses += value;
+      expenses.forEach(exp => {
+        totalExpenses += parseFloat(exp.value) || 0;
       });
-
-      const balance = income - totalExpenses;
-      document.getElementById("result").innerHTML =
-        `<strong>Remaining Balance:</strong> R${balance.toFixed(2)}`;
-
-      drawChart();
+      const balance = salary - totalExpenses;
+      document.getElementById("result").innerText = `Remaining Balance: R${balance.toFixed(2)}`;
     }
 
-    function drawChart() {
-      const base = 20000;
-      const data = [];
-      for (let i = 0; i < 5; i++) {
-        data.push(base * Math.pow(1.1, i));
-      }
-      const ctx = document.getElementById('savingsChart').getContext('2d');
-      if (window.myChart) window.myChart.destroy();
-      window.myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['2025', '2026', '2027', '2028', '2029'],
-          datasets: [{
-            label: 'Annual Savings Goal (ZAR)',
-            data: data,
-            backgroundColor: '#6a11cb'
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            tooltip: { enabled: true }
-          },
-          scales: {
-            y: {
-              beginAtZero: true
-            }
+    const ctx = document.getElementById('savingsChart');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['2025', '2026', '2027', '2028', '2029'],
+        datasets: [{
+          label: 'Savings Goal (R)',
+          data: [20000, 22000, 24200, 26620, 29282],
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52, 152, 219, 0.2)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true
           }
         }
-      });
-    }
+      }
+    });
   </script>
 </body>
 
