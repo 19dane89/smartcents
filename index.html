@@ -1,1049 +1,1057 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SmartCents Dashboard</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-  <style>
-    :root {
-      --color-white: #ffffff;
-      --color-light-blue: #d9ecff;
-      --color-electric-indigo: #6f42c1;
-      --color-emerald-green: #27ae60;
-      --color-sunset-orange: #ff6f61;
-      --color-soft-purple: #9b59b6;
-      --color-pastel-yellow: #f9e79f;
-      --shadow-neumorphic-light: 6px 6px 12px #c8d0e7, -6px -6px 12px #ffffff;
-      --shadow-glass: rgba(255, 255, 255, 0.25) 0 8px 32px 0;
-      --font-primary: 'Poppins', 'Inter', sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SmartCents - Personal Budget & Savings Tracker</title>
 
-    body {
-      font-family: var(--font-primary);
-      margin: 0;
-      background: linear-gradient(135deg, var(--color-light-blue), var(--color-white));
-      color: #1b2a4e;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
 
-    header {
-      background-color: var(--color-electric-indigo);
-      color: var(--color-white);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      font-weight: 600;
-      font-size: 1.5rem;
-    }
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- html2canvas for chart snapshot -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- localForage for IndexedDB -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
-    main {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, #e6f0ff 0%, #ffffff 100%);
+    color: #1b2a4e;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-    .glass-card {
-      background: rgba(255, 255, 255, 0.6);
-      box-shadow: var(--shadow-glass);
-      border-radius: 16px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 2rem;
-      backdrop-filter: blur(10px);
-      transition: box-shadow 0.3s ease;
-    }
+  /* Container & Layout */
+  header {
+    background: linear-gradient(90deg, #2980b9, #4a90e2);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(41, 128, 185, 0.4);
+    font-family: 'Poppins', sans-serif;
+    user-select: none;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+  header span {
+    font-weight: 600;
+    font-size: 1rem;
+    opacity: 0.85;
+  }
 
-    .glass-card:hover {
-      box-shadow: 0 10px 30px rgba(111, 66, 193, 0.3);
-    }
+  main {
+    max-width: 1100px;
+    margin: 2rem auto 3rem auto;
+    padding: 0 1rem;
+  }
 
-    h2 {
-      margin-top: 0;
-      font-weight: 700;
-      color: var(--color-electric-indigo);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+  /* Glass Card Style */
+  .glass-card {
+    background: rgba(255 255 255 / 0.75);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    box-shadow:
+      0 4px 10px rgba(0,0,0,0.08),
+      inset 0 0 15px rgba(255 255 255 / 0.3);
+    padding: 1.8rem 2rem;
+    margin-bottom: 2rem;
+    transition: box-shadow 0.3s ease;
+  }
+  .glass-card:hover {
+    box-shadow:
+      0 8px 18px rgba(0,0,0,0.12),
+      inset 0 0 18px rgba(255 255 255 / 0.5);
+  }
 
-    label {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      display: block;
-      color: var(--color-electric-indigo);
-    }
+  h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #1b2a4e;
+  }
 
-    input[type='number'],
-    input[type='file'],
-    select {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      border: 1.5px solid #ccc;
-      font-size: 1rem;
-      font-family: var(--font-primary);
-      box-shadow: var(--shadow-neumorphic-light);
-      transition: border-color 0.3s ease;
-    }
+  /* Form styles */
+  label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.4rem;
+    color: #34495e;
+  }
 
-    input[type='number']:focus,
-    input[type='file']:focus,
-    select:focus {
-      border-color: var(--color-electric-indigo);
-      outline: none;
-    }
+  input[type=number], select, input[type=file] {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1.5px solid #d1d9e6;
+    background: #f9fbff;
+    color: #1b2a4e;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.25s ease;
+    box-shadow:
+      3px 3px 6px rgba(0,0,0,0.05),
+      -3px -3px 6px rgba(255,255,255,0.8);
+  }
+  input[type=number]:focus, select:focus, input[type=file]:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow:
+      0 0 8px #2980b9;
+  }
 
-    button {
-      background-color: var(--color-electric-indigo);
-      color: var(--color-white);
-      padding: 0.8rem 1.6rem;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      box-shadow: var(--shadow-neumorphic-light);
-    }
+  /* Expenses grid */
+  #expenseCategories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+    gap: 1.1rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .expense-category label {
+    margin-bottom: 0.25rem;
+    color: #34495e;
+  }
 
-    button:hover:not(:disabled) {
-      background-color: #59319f;
-    }
+  /* Buttons */
+  button {
+    background-color: #6f42c1; /* Electric Indigo */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.7rem 1.8rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    box-shadow:
+      0 4px 12px rgba(111,66,193,0.6);
+    transition: background-color 0.25s ease;
+    margin-top: 1rem;
+  }
+  button:hover:not(:disabled) {
+    background-color: #4e2d89;
+  }
+  button:disabled {
+    background-color: #b3a1d9;
+    cursor: not-allowed;
+  }
 
-    button:disabled {
-      background-color: #bbb;
-      cursor: not-allowed;
-    }
+  /* Result text */
+  #saveStatus {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: #2980b9;
+    min-height: 1.2em;
+  }
 
-    /* Expense inputs grid */
-    #expenseCategoriesContainer {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem 2rem;
-      align-items: flex-start;
-    }
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .tab-btn {
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 15px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: #f0f6ff;
+    color: #2980b9;
+    box-shadow:
+      3px 3px 8px rgba(0,0,0,0.05),
+      -3px -3px 8px rgba(255,255,255,0.7);
+  }
+  .tab-btn:hover {
+    background: #d6e4ff;
+  }
+  .tab-btn.active {
+    background: #6f42c1;
+    color: white;
+    box-shadow:
+      0 8px 18px rgba(111,66,193,0.6);
+    border-color: #4e2d89;
+  }
 
-    #expenseCategoriesContainer > div {
-      display: flex;
+  /* Content panels */
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Smaller charts */
+  canvas {
+    max-width: 100%;
+    height: 220px !important;
+    border-radius: 16px;
+    box-shadow:
+      4px 6px 15px rgba(0,0,0,0.07),
+      inset 0 0 10px rgba(255 255 255 / 0.6);
+    background: white;
+  }
+
+  /* Report section */
+  #reportArea {
+    margin-top: 1.5rem;
+    padding: 1.3rem 1.8rem;
+    border-radius: 16px;
+    background: rgba(255 255 255 / 0.8);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 8px 20px rgba(111,66,193,0.1);
+  }
+  #reportSummary {
+    white-space: pre-wrap;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1b2a4e;
+    font-size: 1rem;
+  }
+
+  /* Documents Vault */
+  #documentsVault {
+    margin-top: 0.8rem;
+  }
+  .year-folder > h3 {
+    margin-bottom: 0.3rem;
+    color: #6f42c1;
+    cursor: default;
+  }
+  .month-folder > h4 {
+    margin-left: 1rem;
+    margin-bottom: 0.2rem;
+    color: #2980b9;
+  }
+  #documentsVault ul {
+    list-style: none;
+    padding-left: 2.2rem;
+    margin-top: 0.3rem;
+  }
+  #documentsVault li {
+    cursor: pointer;
+    padding: 0.2rem 0;
+    color: #1b2a4e;
+    user-select: none;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+  #documentsVault li:hover,
+  #documentsVault li:focus {
+    background-color: #6f42c1;
+    color: white;
+    outline: none;
+  }
+
+  /* Form row for salary + file upload side by side */
+  .salary-upload-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .salary-upload-row > div {
+    flex: 1 1 240px;
+  }
+  .salary-upload-row label {
+    margin-bottom: 0.3rem;
+  }
+  /* Responsive */
+  @media (max-width: 720px) {
+    .salary-upload-row {
       flex-direction: column;
+      align-items: stretch;
     }
+  }
 
-    /* Charts container smaller & side-by-side */
-    #chartsContainer {
-      display: flex;
-      gap: 2rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    #chartsContainer > div {
-      flex: 1 1 300px;
-      max-width: 500px;
-    }
-
-    canvas {
-      width: 100% !important;
-      height: 280px !important;
-      border-radius: 12px;
-      box-shadow: var(--shadow-neumorphic-light);
-      background: var(--color-white);
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .tabs button {
-      background: var(--color-light-blue);
-      border-radius: 10px;
-      padding: 0.6rem 1.2rem;
-      border: 1.5px solid var(--color-electric-indigo);
-      font-weight: 600;
-      color: var(--color-electric-indigo);
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .tabs button.active,
-    .tabs button:hover {
-      background-color: var(--color-electric-indigo);
-      color: var(--color-white);
-      box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
-    }
-
-    .tab-content {
-      display: none;
-      outline: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Documents vault */
-    #documentsVault {
-      max-height: 350px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 12px;
-      background: var(--color-white);
-    }
-
-    .year-folder > h3 {
-      margin-bottom: 0.5rem;
-      color: var(--color-electric-indigo);
-      cursor: default;
-    }
-
-    .month-folder {
-      margin-left: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .month-folder > h4 {
-      margin-bottom: 0.3rem;
-      font-weight: 600;
-      color: var(--color-emerald-green);
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 1rem;
-      margin: 0;
-    }
-
-    ul li {
-      cursor: pointer;
-      color: var(--color-electric-indigo);
-      text-decoration: underline;
-      margin-bottom: 0.3rem;
-      user-select: none;
-    }
-
-    ul li:hover,
-    ul li:focus {
-      color: var(--color-sunset-orange);
-      outline: none;
-    }
-
-    /* Divider */
-    .divider {
-      border-bottom: 1px solid #ccc;
-      margin: 0.75rem 0 1.25rem 0;
-    }
-  </style>
+</style>
 </head>
-
 <body>
-  <header>
-    <h1>SmartCents</h1>
-    <span>Personal Budget &amp; Savings Tracker</span>
-  </header>
 
-  <main>
-    <!-- Tabs -->
-    <nav class="tabs" role="tablist" aria-label="Main tabs">
-      <button id="tabBudget" role="tab" aria-selected="true" aria-controls="tabBudgetContent" tabindex="0" class="active">Budget</button>
-      <button id="tabDocuments" role="tab" aria-selected="false" aria-controls="tabDocumentsContent" tabindex="-1">Documents Vault</button>
-    </nav>
+<header>
+  <h1>SmartCents</h1>
+  <span>Personal Budget & Savings Tracker</span>
+</header>
 
-    <!-- Budget Tab -->
-    <section id="tabBudgetContent" class="tab-content active" role="tabpanel" aria-labelledby="tabBudget" tabindex="0">
-      <section class="glass-card" aria-label="Income and Expenses Input">
-        <h2>Income &amp; Expenses</h2>
+<main>
+  <div class="tabs" role="tablist" aria-label="Main Tabs">
+    <button class="tab-btn active" id="tabBudgetBtn" role="tab" aria-selected="true" aria-controls="tabBudgetContent" tabindex="0">Budget & Reports</button>
+    <button class="tab-btn" id="tabDocumentsBtn" role="tab" aria-selected="false" aria-controls="tabDocumentsContent" tabindex="-1">Documents Vault</button>
+  </div>
 
-        <label for="yearSelect">Select Year</label>
-        <select id="yearSelect" aria-label="Select year">
-          <!-- Years populated by script -->
-        </select>
+  <!-- Budget & Reports Tab -->
+  <section id="tabBudgetContent" class="tab-content active" role="tabpanel" aria-labelledby="tabBudgetBtn">
 
-        <label for="monthSelect">Select Month</label>
-        <select id="monthSelect" aria-label="Select month">
-          <!-- Months populated by script -->
-        </select>
-
-        <label for="salaryInput">Net Salary</label>
-        <input type="number" id="salaryInput" min="0" step="0.01" placeholder="Enter your monthly net salary" aria-describedby="salaryHelp" />
-
-        <label for="savingsInput">Savings</label>
-        <input type="number" id="savingsInput" min="0" step="0.01" placeholder="Enter savings amount for the month" aria-describedby="savingsHelp" />
-
-        <div id="expenseCategoriesContainer" aria-label="Expenses categories input">
-          <!-- Expense inputs added dynamically -->
-        </div>
-
-        <label for="payslipFile">Upload Payslip PDF for selected month</label>
-        <input type="file" id="payslipFile" accept="application/pdf" aria-describedby="payslipHelp" />
-
-        <button id="saveDataBtn" aria-label="Save Income and Expense Data">Save Data</button>
-        <div id="saveStatus" role="alert" aria-live="polite"></div>
-      </section>
-
-      <!-- Charts -->
-      <section id="chartsContainer" aria-label="Financial charts overview" class="glass-card">
+    <div class="glass-card" aria-label="Monthly Budget and Income Inputs">
+      <h2>Monthly Budget & Income</h2>
+      <div class="salary-upload-row">
         <div>
-          <h2><i class="fas fa-chart-line"></i> Savings Progress</h2>
-          <canvas id="savingsChart" role="img" aria-label="Line chart showing savings progress"></canvas>
+          <label for="salaryInput">Net Salary (R)</label>
+          <input type="number" id="salaryInput" min="0" step="0.01" placeholder="Enter monthly net salary" aria-describedby="salaryHelp" />
         </div>
         <div>
-          <h2><i class="fas fa-chart-pie"></i> Expenses Breakdown</h2>
-          <canvas id="expensesChart" role="img" aria-label="Pie chart showing expenses breakdown"></canvas>
+          <label for="payslipFileInput">Upload Payslip (PDF)</label>
+          <input type="file" id="payslipFileInput" accept="application/pdf" aria-describedby="payslipHelp" />
         </div>
-      </section>
+      </div>
 
-      <!-- Report Options -->
-      <section id="reportOptions" class="glass-card" aria-label="Report options">
-        <label for="reportTypeSelect">Select Report Type:</label>
-        <select id="reportTypeSelect" aria-label="Select report type">
-          <option value="month">Monthly</option>
-          <option value="year">Yearly</option>
-        </select>
+      <label for="savingsInput" style="margin-top:1rem;">Savings (R)</label>
+      <input type="number" id="savingsInput" min="0" step="0.01" placeholder="Enter monthly savings" />
 
-        <button id="showReportBtn" aria-label="Show Report">Show Report</button>
-      </section>
+      <div id="expenseCategories" aria-label="Expense Categories Inputs">
+        <!-- Dynamically generated expense inputs -->
+      </div>
 
-      <!-- Report Area -->
-      <section id="reportArea" class="glass-card" hidden aria-live="polite" aria-label="Generated financial report">
-        <h3><i class="fas fa-file-alt"></i> Report Summary</h3>
-        <p id="reportSummary"></p>
-        <canvas id="reportSavingsChart" role="img" aria-label="Line chart for report savings"></canvas>
-        <canvas id="reportExpensesChart" role="img" aria-label="Pie chart for report expenses"></canvas>
+      <button id="saveDataBtn" type="button" aria-live="polite" aria-atomic="true">Save Data</button>
+      <div id="saveStatus" role="status" aria-live="polite"></div>
+    </div>
 
-        <button id="generateReportBtn" aria-label="Generate PDF report">Generate PDF Report</button>
-      </section>
-    </section>
+    <!-- Charts Section -->
+    <div class="glass-card" aria-label="Charts Section">
+      <h2>Financial Overview</h2>
+      <div style="display:flex; flex-wrap: wrap; gap: 1.5rem;">
+        <canvas id="savingsChartCanvas" aria-label="Savings progress line chart" role="img" style="flex:1 1 350px; max-width: 48%;"></canvas>
+        <canvas id="expensesChartCanvas" aria-label="Expenses breakdown pie chart" role="img" style="flex:1 1 250px; max-width: 48%;"></canvas>
+      </div>
+    </div>
 
-    <!-- Documents Vault Tab -->
-    <section id="tabDocumentsContent" class="tab-content" tabindex="0" role="tabpanel" aria-labelledby="tabDocuments">
-      <section class="glass-card" aria-label="Documents Vault">
-        <h2><i class="fas fa-folder-open"></i> Documents Vault (Payslips)</h2>
-        <div class="divider"></div>
-        <p>View your uploaded payslips by year and month. Click to download.</p>
-        <div id="documentsVault" aria-live="polite" aria-atomic="true">
-          <!-- Documents folders will be loaded here -->
-          <p>Loading documents...</p>
-        </div>
-      </section>
-    </section>
-  </main>
+    <!-- Report Controls -->
+    <div class="glass-card" aria-label="Report Generation Controls">
+      <h2>Generate Financial Report</h2>
+      <label for="yearSelect">Select Year</label>
+      <select id="yearSelect" aria-describedby="yearHelp"></select>
 
-  <script>
-    // Constants & global vars
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+      <label for="monthSelect">Select Month</label>
+      <select id="monthSelect" aria-describedby="monthHelp"></select>
 
-    // Expense categories without 'Education'
-    const expenseCategories = [
-      'Rent', 'Groceries', 'Utilities', 'Transport', 'Entertainment',
-      'Health', 'Clothing', 'Subscriptions', 'Misc'
-    ];
+      <label for="reportTypeSelect">Report Type</label>
+      <select id="reportTypeSelect" aria-describedby="reportTypeHelp">
+        <option value="month">Monthly Report</option>
+        <option value="year">Yearly Report</option>
+      </select>
 
-    // Selectors
-    const yearSelect = document.getElementById('yearSelect');
-    const monthSelect = document.getElementById('monthSelect');
-    const reportTypeSelect = document.getElementById('reportTypeSelect');
-    const salaryInput = document.getElementById('salaryInput');
-    const savingsInput = document.getElementById('savingsInput');
-    const expenseCategoriesContainer = document.getElementById('expenseCategoriesContainer');
-    const saveDataBtn = document.getElementById('saveDataBtn');
-    const saveStatus = document.getElementById('saveStatus');
-    const payslipFileInput = document.getElementById('payslipFile');
+      <button id="showReportBtn" type="button" aria-live="polite" aria-atomic="true">Show Report</button>
+      <button id="generateReportBtn" type="button" disabled>Generate PDF Report</button>
 
-    const chartsContainer = document.getElementById('chartsContainer');
-    const savingsChartCanvas = document.getElementById('savingsChart');
-    const expensesChartCanvas = document.getElementById('expensesChart');
+      <div id="reportArea" hidden aria-live="polite" aria-atomic="true" style="margin-top:1rem;">
+        <div id="reportSummary"></div>
+        <canvas id="reportSavingsChartCanvas" aria-label="Report savings line chart" role="img" style="max-width: 100%; height: 180px; margin-bottom: 1rem;"></canvas>
+        <canvas id="reportExpensesChartCanvas" aria-label="Report expenses pie chart" role="img" style="max-width: 100%; height: 180px;"></canvas>
+      </div>
+    </div>
 
-    const reportOptions = document.getElementById('reportOptions');
-    const showReportBtn = document.getElementById('showReportBtn');
-    const reportArea = document.getElementById('reportArea');
-    const reportSummary = document.getElementById('reportSummary');
-    const reportSavingsChartCanvas = document.getElementById('reportSavingsChart');
-    const reportExpensesChartCanvas = document.getElementById('reportExpensesChart');
-    const generateReportBtn = document.getElementById('generateReportBtn');
+  </section>
 
-    // Tabs
-    const tabBudgetBtn = document.getElementById('tabBudget');
-    const tabDocumentsBtn = document.getElementById('tabDocuments');
-    const tabBudgetContent = document.getElementById('tabBudgetContent');
-    const tabDocumentsContent = document.getElementById('tabDocumentsContent');
-    const documentsVault = document.getElementById('documentsVault');
+  <!-- Documents Vault Tab -->
+  <section id="tabDocumentsContent" class="tab-content" role="tabpanel" aria-labelledby="tabDocumentsBtn">
+    <div class="glass-card" aria-label="Documents Vault">
+      <h2>Documents Vault</h2>
+      <p>Uploaded payslips by year and month. Click to download.</p>
+      <div id="documentsVault" tabindex="0" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
 
-    // State
-    let currentYear = new Date().getFullYear().toString();
-    let currentMonth = new Date().getMonth();
-    let reportType = 'month';
+<script>
+(() => {
+  'use strict';
 
-    // Data storage (localStorage keys)
-    // We'll store yearly data in localStorage as JSON keyed by year, each year's data is an array[12] of months objects
-    // Each month object: { salary, savings, expenses: { category: value }, payslipId? }
-    function getYearKey(year) {
-      return `smartcents_data_${year}`;
+  // Expense categories (no Education)
+  const expenseCategories = [
+    'Rent', 'Internet', 'Cellphone', 'Car', 'Household', 'Petrol', 'Toiletries', 'Pocket Money', 'Entertainment', 'Other1', 'Other2', 'Other3'
+  ];
+
+  // DOM references
+  const salaryInput = document.getElementById('salaryInput');
+  const savingsInput = document.getElementById('savingsInput');
+  const expenseCategoriesContainer = document.getElementById('expenseCategories');
+  const saveDataBtn = document.getElementById('saveDataBtn');
+  const saveStatus = document.getElementById('saveStatus');
+  const yearSelect = document.getElementById('yearSelect');
+  const monthSelect = document.getElementById('monthSelect');
+  const reportTypeSelect = document.getElementById('reportTypeSelect');
+  const showReportBtn = document.getElementById('showReportBtn');
+  const generateReportBtn = document.getElementById('generateReportBtn');
+  const reportArea = document.getElementById('reportArea');
+  const reportSummary = document.getElementById('reportSummary');
+  const reportSavingsChartCanvas = document.getElementById('reportSavingsChartCanvas');
+  const reportExpensesChartCanvas = document.getElementById('reportExpensesChartCanvas');
+  const payslipFileInput = document.getElementById('payslipFileInput');
+  const documentsVault = document.getElementById('documentsVault');
+  const savingsChartCanvas = document.getElementById('savingsChartCanvas');
+  const expensesChartCanvas = document.getElementById('expensesChartCanvas');
+  const tabBudgetBtn = document.getElementById('tabBudgetBtn');
+  const tabDocumentsBtn = document.getElementById('tabDocumentsBtn');
+  const tabBudgetContent = document.getElementById('tabBudgetContent');
+  const tabDocumentsContent = document.getElementById('tabDocumentsContent');
+
+  // Date helpers
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  let currentYear = new Date().getFullYear();
+  let currentMonth = new Date().getMonth();
+
+  // Data storage key format: smartcents_data_{year}
+  function getYearKey(year) {
+    return `smartcents_data_${year}`;
+  }
+
+  // Initialize year and month dropdowns
+  function initYearMonthSelectors() {
+    const startYear = currentYear - 5;
+    const endYear = currentYear + 5;
+    for (let y = startYear; y <= endYear; y++) {
+      const opt = document.createElement('option');
+      opt.value = y.toString();
+      opt.textContent = y.toString();
+      if (y === currentYear) opt.selected = true;
+      yearSelect.appendChild(opt);
     }
-
-    // Initialize years and months dropdown
-    function initYearMonthSelectors() {
-      // Populate years from currentYear - 5 to currentYear + 5 for flexibility
-      const startYear = currentYear - 5;
-      const endYear = currentYear + 5;
-      for (let y = startYear; y <= endYear; y++) {
-        const option = document.createElement('option');
-        option.value = y.toString();
-        option.textContent = y.toString();
-        if (y.toString() === currentYear) option.selected = true;
-        yearSelect.appendChild(option);
-      }
-      // Months options
-      monthNames.forEach((m, i) => {
-        const option = document.createElement('option');
-        option.value = i.toString();
-        option.textContent = m;
-        if (i === currentMonth) option.selected = true;
-        monthSelect.appendChild(option);
-      });
+    for (let m = 0; m < 12; m++) {
+      const opt = document.createElement('option');
+      opt.value = m.toString();
+      opt.textContent = monthNames[m];
+      if (m === currentMonth) opt.selected = true;
+      monthSelect.appendChild(opt);
     }
+  }
 
-    // Initialize expense inputs dynamically
-    function createExpenseInputs() {
-      expenseCategoriesContainer.innerHTML = '';
-      expenseCategories.forEach(category => {
-        const div = document.createElement('div');
-        div.classList.add('expense-category');
+  // Create expense inputs dynamically
+  function createExpenseInputs() {
+    expenseCategoriesContainer.innerHTML = '';
+    expenseCategories.forEach(cat => {
+      const div = document.createElement('div');
+      div.className = 'expense-category';
+      const label = document.createElement('label');
+      label.textContent = cat;
+      label.setAttribute('for', `expense-${cat}`);
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.step = '0.01';
+      input.id = `expense-${cat}`;
+      input.className = 'expense-input';
+      input.setAttribute('aria-label', `Expense for ${cat}`);
+      div.appendChild(label);
+      div.appendChild(input);
+      expenseCategoriesContainer.appendChild(div);
+    });
+  }
 
-        const label = document.createElement('label');
-        label.setAttribute('for', `expense-${category.toLowerCase()}`);
-        label.textContent = category;
+  // Storage helpers
+  async function saveData(year, data) {
+    const key = getYearKey(year);
+    let allData = await localforage.getItem(key) || {};
+    allData[data.month] = data;
+    await localforage.setItem(key, allData);
+  }
 
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = '0';
-        input.step = '0.01';
-        input.id = `expense-${category.toLowerCase()}`;
-        input.classList.add('expense-input');
-        input.placeholder = `Enter ${category} expense`;
+  async function loadData(year, month) {
+    const key = getYearKey(year);
+    const allData = await localforage.getItem(key) || {};
+    return allData[month] || null;
+  }
 
-        div.appendChild(label);
-        div.appendChild(input);
-        expenseCategoriesContainer.appendChild(div);
-      });
-    }
+  // Populate inputs from loaded data
+  async function populateInputs() {
+    const selectedYear = parseInt(yearSelect.value, 10);
+    const selectedMonth = parseInt(monthSelect.value, 10);
+    const data = await loadData(selectedYear, selectedMonth);
 
-    // Load yearly data from localStorage
-    function loadYearData(year) {
-      const stored = localStorage.getItem(getYearKey(year));
-      if (!stored) return new Array(12).fill(null);
-      try {
-        const parsed = JSON.parse(stored);
-        // Ensure length 12
-        if (parsed.length !== 12) return new Array(12).fill(null);
-        return parsed;
-      } catch {
-        return new Array(12).fill(null);
-      }
-    }
-
-    // Save yearly data to localStorage
-    function saveYearData(year, data) {
-      localStorage.setItem(getYearKey(year), JSON.stringify(data));
-    }
-
-    // Current year data in memory
-    let yearData = loadYearData(currentYear);
-
-    // Load inputs for current month/year
-    function populateInputs() {
-      if (!yearData[currentMonth]) {
-        // Initialize empty month data object
-        yearData[currentMonth] = {
-          salary: 0,
-          savings: 0,
-          expenses: {}
-        };
-        expenseCategories.forEach(c => yearData[currentMonth].expenses[c] = 0);
-      }
-
-      const monthData = yearData[currentMonth];
-      salaryInput.value = monthData.salary || 0;
-      savingsInput.value = monthData.savings || 0;
-      expenseCategories.forEach(category => {
-        const val = monthData.expenses[category] || 0;
-        const input = document.getElementById(`expense-${category.toLowerCase()}`);
-        if (input) input.value = val;
-      });
-
-      // Clear payslip input for upload - no file selection persists for security reasons
-      payslipFileInput.value = '';
-    }
-
-    // Save inputs into yearData and localStorage
-    function saveInputs() {
-      if (!yearData[currentMonth]) {
-        yearData[currentMonth] = {
-          salary: 0,
-          savings: 0,
-          expenses: {}
-        };
-      }
-
-      yearData[currentMonth].salary = parseFloat(salaryInput.value) || 0;
-      yearData[currentMonth].savings = parseFloat(savingsInput.value) || 0;
-
-      expenseCategories.forEach(category => {
-        const input = document.getElementById(`expense-${category.toLowerCase()}`);
-        if (input) {
-          yearData[currentMonth].expenses[category] = parseFloat(input.value) || 0;
-        }
-      });
-
-      saveYearData(currentYear, yearData);
-      saveStatus.textContent = `Data saved for ${monthNames[currentMonth]} ${currentYear}`;
-      setTimeout(() => {
-        saveStatus.textContent = '';
-      }, 3000);
-
-      updateCharts();
-    }
-
-    // Update year and month on selectors change
-    yearSelect.addEventListener('change', () => {
-      currentYear = yearSelect.value;
-      yearData = loadYearData(currentYear);
-      populateInputs();
-      updateCharts();
-      loadDocumentsVault();
-      reportArea.hidden = true;
+    // Reset all
+    salaryInput.value = '';
+    savingsInput.value = '';
+    expenseCategories.forEach(cat => {
+      const input = document.getElementById(`expense-${cat}`);
+      if (input) input.value = '';
     });
 
-    monthSelect.addEventListener('change', () => {
-      currentMonth = parseInt(monthSelect.value, 10);
-      populateInputs();
-      updateCharts();
-      loadDocumentsVault();
-      reportArea.hidden = true;
-    });
-
-    saveDataBtn.addEventListener('click', saveInputs);
-
-    // Payslip upload handling with localForage IndexedDB
-    localforage.config({
-      name: 'SmartCentsDocuments',
-      storeName: 'payslips'
-    });
-
-    payslipFileInput.addEventListener('change', async e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (file.type !== 'application/pdf') {
-        alert('Only PDF files allowed.');
-        payslipFileInput.value = '';
-        return;
-      }
-      try {
-        const blob = file.slice();
-        const key = `${currentYear}-${currentMonth}`;
-        await localforage.setItem(key, blob);
-
-        // Save payslipId reference in yearData
-        if (!yearData[currentMonth]) yearData[currentMonth] = {};
-        yearData[currentMonth].payslipId = key;
-        saveYearData(currentYear, yearData);
-
-        alert(`Payslip uploaded for ${monthNames[currentMonth]} ${currentYear}`);
-        payslipFileInput.value = '';
-        loadDocumentsVault();
-      } catch (err) {
-        alert('Error saving payslip: ' + err);
-      }
-    });
-
-    // Load and display payslips in Documents Vault
-    async function loadDocumentsVault() {
-      documentsVault.innerHTML = '<p>Loading documents...</p>';
-      try {
-        const keys = await localforage.keys();
-        if (keys.length === 0) {
-          documentsVault.innerHTML = '<p>No documents uploaded yet.</p>';
-          return;
-        }
-        // Organize by year -> months
-        const docsByYear = {};
-        keys.forEach(key => {
-          const [year, month] = key.split('-');
-          if (!docsByYear[year]) docsByYear[year] = [];
-          docsByYear[year].push(parseInt(month));
+    if (data) {
+      if (data.salary !== undefined) salaryInput.value = data.salary;
+      if (data.savings !== undefined) savingsInput.value = data.savings;
+      if (data.expenses) {
+        Object.entries(data.expenses).forEach(([cat, val]) => {
+          const input = document.getElementById(`expense-${cat}`);
+          if (input) input.value = val;
         });
-
-        documentsVault.innerHTML = '';
-        const sortedYears = Object.keys(docsByYear).sort((a, b) => b - a);
-
-        sortedYears.forEach(year => {
-          const yearDiv = document.createElement('div');
-          yearDiv.className = 'year-folder';
-
-          const yHeader = document.createElement('h3');
-          yHeader.textContent = year;
-          yearDiv.appendChild(yHeader);
-
-          const months = docsByYear[year].sort((a, b) => a - b);
-
-          months.forEach(monthNum => {
-            const monthDiv = document.createElement('div');
-            monthDiv.className = 'month-folder';
-
-            const mHeader = document.createElement('h4');
-            mHeader.textContent = monthNames[monthNum];
-            monthDiv.appendChild(mHeader);
-
-            const fileList = document.createElement('ul');
-            monthDiv.appendChild(fileList);
-
-            const key = `${year}-${monthNum}`;
-            const li = document.createElement('li');
-            li.textContent = 'Payslip.pdf';
-            li.setAttribute('role', 'button');
-            li.tabIndex = 0;
-            li.style.userSelect = 'none';
-
-            li.addEventListener('click', () => {
-              downloadPayslip(key);
-            });
-            li.addEventListener('keydown', e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                downloadPayslip(key);
-              }
-            });
-
-            fileList.appendChild(li);
-            yearDiv.appendChild(monthDiv);
-          });
-
-          documentsVault.appendChild(yearDiv);
-        });
-      } catch (err) {
-        documentsVault.innerHTML = '<p>Error loading documents.</p>';
-        console.error(err);
       }
     }
+  }
 
-    async function downloadPayslip(key) {
-      try {
-        const blob = await localforage.getItem(key);
-        if (!blob) {
-          alert('Payslip not found.');
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Payslip_${key.replace('-', '_')}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      } catch (err) {
-        alert('Error downloading payslip: ' + err);
-      }
-    }
+  // Calculate totals and update charts
+  async function updateCharts() {
+    const selectedYear = parseInt(yearSelect.value, 10);
+    const selectedMonth = parseInt(monthSelect.value, 10);
+    const data = await loadData(selectedYear, selectedMonth);
 
-    // Chart instances
-    let savingsChart = null;
-    let expensesChart = null;
+    // Prepare expenses data for pie chart
+    let expensesData = [];
+    let expensesLabels = [];
+    let totalExpenses = 0;
 
-    // Update charts with current year data
-    function updateCharts() {
-      if (!yearData) return;
-
-      // Savings line chart data - 12 months
-      const savingsData = yearData.map(m => (m ? m.savings || 0 : 0));
-      const monthsLabels = monthNames;
-
-      if (savingsChart) savingsChart.destroy();
-      savingsChart = new Chart(savingsChartCanvas.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: monthsLabels,
-          datasets: [
-            {
-              label: 'Savings (R)',
-              data: savingsData,
-              fill: true,
-              backgroundColor: 'rgba(39, 174, 96, 0.2)', // Emerald green translucent
-              borderColor: 'rgba(39, 174, 96, 1)',
-              tension: 0.3,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              hoverBackgroundColor: 'rgba(39, 174, 96, 0.5)',
-              borderWidth: 3,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            tooltip: {
-              enabled: true,
-              mode: 'nearest',
-              intersect: false,
-              callbacks: {
-                label: ctx => `R ${ctx.parsed.y.toFixed(2)}`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: val => `R${val}`,
-              },
-            },
-          },
-        },
-      });
-
-      // Expenses pie chart for current month
-      const monthData = yearData[currentMonth];
-      const expenseData = expenseCategories.map(
-        cat => (monthData && monthData.expenses && monthData.expenses[cat]) || 0
-      );
-
-      if (expensesChart) expensesChart.destroy();
-      expensesChart = new Chart(expensesChartCanvas.getContext('2d'), {
-        type: 'pie',
-        data: {
-          labels: expenseCategories,
-          datasets: [
-            {
-              data: expenseData,
-              backgroundColor: [
-                '#FF6F61', // Sunset Orange
-                '#6F42C1', // Electric Indigo
-                '#F9E79F', // Pastel Yellow
-                '#9B59B6', // Soft Purple
-                '#27AE60', // Emerald Green
-                '#FF9F1C',
-                '#00B4D8',
-                '#E36414',
-                '#7E57C2',
-              ],
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              enabled: true,
-              callbacks: {
-                label: ctx => `${ctx.label}: R ${ctx.parsed.toFixed(2)}`,
-              },
-            },
-          },
-        },
-      });
-    }
-
-    // Report generation
-    showReportBtn.addEventListener('click', () => {
-      reportType = reportTypeSelect.value;
-      reportArea.hidden = false;
-
-      if (reportType === 'month') {
-        generateMonthlyReport();
-      } else {
-        generateYearlyReport();
-      }
+    expenseCategories.forEach(cat => {
+      const val = data?.expenses?.[cat] || 0;
+      expensesLabels.push(cat);
+      expensesData.push(val);
+      totalExpenses += val;
     });
 
-    generateReportBtn.addEventListener('click', async () => {
-      generateReportBtn.disabled = true;
-      generateReportBtn.textContent = 'Generating PDF...';
-
-      try {
-        await generatePDFReport();
-      } catch (err) {
-        alert('Error generating PDF: ' + err);
+    // Savings and salary for line chart
+    // For line chart, show savings by month for the selected year
+    let savingsByMonth = new Array(12).fill(0);
+    const yearlyData = await localforage.getItem(getYearKey(selectedYear)) || {};
+    for (let m = 0; m < 12; m++) {
+      const monthData = yearlyData[m];
+      if (monthData && monthData.savings !== undefined) {
+        savingsByMonth[m] = monthData.savings;
       }
+    }
 
-      generateReportBtn.disabled = false;
-      generateReportBtn.textContent = 'Generate PDF Report';
+    // Update expenses pie chart
+    if (window.expensesChart) {
+      window.expensesChart.data.labels = expensesLabels;
+      window.expensesChart.data.datasets[0].data = expensesData;
+      window.expensesChart.update();
+    }
+
+    // Update savings line chart
+    if (window.savingsChart) {
+      window.savingsChart.data.labels = monthNames;
+      window.savingsChart.data.datasets[0].data = savingsByMonth;
+      window.savingsChart.update();
+    }
+  }
+
+  // Save all current inputs to storage
+  async function saveCurrentData() {
+    const selectedYear = parseInt(yearSelect.value, 10);
+    const selectedMonth = parseInt(monthSelect.value, 10);
+
+    // Gather data
+    const salary = parseFloat(salaryInput.value) || 0;
+    const savings = parseFloat(savingsInput.value) || 0;
+    const expenses = {};
+    expenseCategories.forEach(cat => {
+      const val = parseFloat(document.getElementById(`expense-${cat}`).value) || 0;
+      expenses[cat] = val;
     });
 
-    // Helpers to generate reports
-    function generateMonthlyReport() {
-      const monthData = yearData[currentMonth];
+    const dataToSave = {
+      month: selectedMonth,
+      salary,
+      savings,
+      expenses,
+      timestamp: Date.now()
+    };
+
+    await saveData(selectedYear, dataToSave);
+    saveStatus.textContent = `Data saved for ${monthNames[selectedMonth]} ${selectedYear}.`;
+    updateCharts();
+  }
+
+  // Show report summary & charts
+  async function showReport() {
+    reportArea.hidden = false;
+    generateReportBtn.disabled = false;
+
+    const selectedYear = parseInt(yearSelect.value, 10);
+    const selectedMonth = parseInt(monthSelect.value, 10);
+    const reportType = reportTypeSelect.value;
+
+    let reportText = '';
+    let reportSavingsData = [];
+    let reportExpensesData = [];
+    let reportExpensesLabels = [];
+
+    if (reportType === 'month') {
+      const monthData = await loadData(selectedYear, selectedMonth);
       if (!monthData) {
-        reportSummary.textContent = 'No data available for this month.';
+        reportSummary.textContent = `No data found for ${monthNames[selectedMonth]} ${selectedYear}.`;
         clearReportCharts();
         return;
       }
+      reportText += `Financial Report for ${monthNames[selectedMonth]} ${selectedYear}\n\n`;
+      reportText += `Salary: R${monthData.salary.toFixed(2)}\n`;
+      reportText += `Savings: R${monthData.savings.toFixed(2)}\n`;
+      let totalExpenses = 0;
+      reportText += 'Expenses:\n';
+      for (const cat of expenseCategories) {
+        const val = monthData.expenses?.[cat] || 0;
+        reportText += `  - ${cat}: R${val.toFixed(2)}\n`;
+        totalExpenses += val;
+      }
+      reportText += `Total Expenses: R${totalExpenses.toFixed(2)}\n`;
+      reportText += `Remaining Balance: R${(monthData.salary - totalExpenses).toFixed(2)}\n`;
 
-      // Summary text
-      const totalExpenses = expenseCategories.reduce(
-        (sum, c) => sum + (monthData.expenses[c] || 0),
-        0
-      );
-      const balance = (monthData.salary || 0) - totalExpenses - (monthData.savings || 0);
+      // Data for charts
+      reportSavingsData = [monthData.savings];
+      reportExpensesLabels = expenseCategories;
+      reportExpensesData = expenseCategories.map(cat => monthData.expenses?.[cat] || 0);
 
-      reportSummary.textContent = `
-        Month: ${monthNames[currentMonth]} ${currentYear}
-        Net Salary: R${(monthData.salary || 0).toFixed(2)}
-        Total Expenses: R${totalExpenses.toFixed(2)}
-        Savings: R${(monthData.savings || 0).toFixed(2)}
-        Balance (Salary - Expenses - Savings): R${balance.toFixed(2)}
-      `;
+      // For savings chart, show just one point labeled current month
+      updateReportCharts([monthNames[selectedMonth]], reportSavingsData, reportExpensesLabels, reportExpensesData);
 
-      // Update charts
-      updateReportSavingsChart([monthData.savings || 0]);
-      updateReportExpensesChart(monthData.expenses);
-    }
+    } else if (reportType === 'year') {
+      const yearlyData = await localforage.getItem(getYearKey(selectedYear)) || {};
+      if (Object.keys(yearlyData).length === 0) {
+        reportSummary.textContent = `No data found for year ${selectedYear}.`;
+        clearReportCharts();
+        return;
+      }
+      reportText += `Financial Report for Year ${selectedYear}\n\n`;
+      let yearlySalary = 0, yearlySavings = 0, yearlyExpenses = {};
+      expenseCategories.forEach(cat => yearlyExpenses[cat] = 0);
 
-    function generateYearlyReport() {
-      // Aggregate over all months
-      let totalSalary = 0;
-      let totalSavings = 0;
-      const totalExpenses = {};
-      expenseCategories.forEach(c => (totalExpenses[c] = 0));
+      // Aggregate data for all months
+      for (let m = 0; m < 12; m++) {
+        const monthData = yearlyData[m];
+        if (!monthData) continue;
+        yearlySalary += monthData.salary || 0;
+        yearlySavings += monthData.savings || 0;
+        expenseCategories.forEach(cat => {
+          yearlyExpenses[cat] += monthData.expenses?.[cat] || 0;
+        });
+      }
 
-      let monthsWithData = 0;
-      yearData.forEach(monthData => {
-        if (monthData) {
-          monthsWithData++;
-          totalSalary += monthData.salary || 0;
-          totalSavings += monthData.savings || 0;
-          expenseCategories.forEach(c => {
-            totalExpenses[c] += monthData.expenses[c] || 0;
-          });
+      reportText += `Total Salary: R${yearlySalary.toFixed(2)}\n`;
+      reportText += `Total Savings: R${yearlySavings.toFixed(2)}\n`;
+      let totalExpenses = 0;
+      reportText += 'Expenses:\n';
+      expenseCategories.forEach(cat => {
+        reportText += `  - ${cat}: R${yearlyExpenses[cat].toFixed(2)}\n`;
+        totalExpenses += yearlyExpenses[cat];
+      });
+      reportText += `Total Expenses: R${totalExpenses.toFixed(2)}\n`;
+      reportText += `Remaining Balance: R${(yearlySalary - totalExpenses).toFixed(2)}\n`;
+
+      // Prepare data for charts (monthly savings & yearly expenses)
+      const savingsByMonth = new Array(12).fill(0);
+      const labelsByMonth = monthNames;
+      for (let m = 0; m < 12; m++) {
+        const monthData = yearlyData[m];
+        if (monthData && monthData.savings !== undefined) {
+          savingsByMonth[m] = monthData.savings;
         }
-      });
-
-      if (monthsWithData === 0) {
-        reportSummary.textContent = 'No data available for this year.';
-        clearReportCharts();
-        return;
       }
+      reportSavingsData = savingsByMonth;
+      reportExpensesLabels = expenseCategories;
+      reportExpensesData = expenseCategories.map(cat => yearlyExpenses[cat]);
 
-      const balance = totalSalary - Object.values(totalExpenses).reduce((a, b) => a + b, 0) - totalSavings;
-
-      reportSummary.textContent = `
-        Year: ${currentYear}
-        Total Net Salary: R${totalSalary.toFixed(2)}
-        Total Expenses: R${Object.values(totalExpenses).reduce((a, b) => a + b, 0).toFixed(2)}
-        Total Savings: R${totalSavings.toFixed(2)}
-        Balance (Salary - Expenses - Savings): R${balance.toFixed(2)}
-      `;
-
-      // For yearly savings chart, show savings per month
-      const savingsData = yearData.map(m => (m ? m.savings || 0 : 0));
-      updateReportSavingsChart(savingsData);
-
-      updateReportExpensesChart(totalExpenses);
+      updateReportCharts(labelsByMonth, reportSavingsData, reportExpensesLabels, reportExpensesData);
     }
 
-    // Update report savings chart
-    let reportSavingsChart = null;
-    function updateReportSavingsChart(savingsData) {
-      if (reportSavingsChart) reportSavingsChart.destroy();
+    reportSummary.textContent = reportText;
+  }
 
-      reportSavingsChart = new Chart(reportSavingsChartCanvas.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: monthNames,
-          datasets: [
-            {
-              label: 'Savings (R)',
-              data: savingsData,
-              fill: true,
-              backgroundColor: 'rgba(39, 174, 96, 0.3)', // Emerald green translucent
-              borderColor: 'rgba(39, 174, 96, 1)',
-              tension: 0.3,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              borderWidth: 3,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            tooltip: {
-              callbacks: {
-                label: ctx => `R ${ctx.parsed.y.toFixed(2)}`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: val => `R${val}`,
-              },
-            },
-          },
-        },
-      });
+  // Clear report charts
+  function clearReportCharts() {
+    if(window.reportSavingsChart) {
+      window.reportSavingsChart.data.labels = [];
+      window.reportSavingsChart.data.datasets[0].data = [];
+      window.reportSavingsChart.update();
     }
-
-    // Update report expenses chart
-    let reportExpensesChart = null;
-    function updateReportExpensesChart(expensesData) {
-      if (reportExpensesChart) reportExpensesChart.destroy();
-
-      let labels = [];
-      let data = [];
-
-      if (Array.isArray(expensesData)) {
-        // Monthly data: object with categories
-        labels = expenseCategories;
-        data = expenseCategories.map(c => expensesData[c] || 0);
-      } else {
-        // Aggregated total expenses: object with keys
-        labels = Object.keys(expensesData);
-        data = Object.values(expensesData);
-      }
-
-      reportExpensesChart = new Chart(reportExpensesChartCanvas.getContext('2d'), {
-        type: 'pie',
-        data: {
-          labels,
-          datasets: [
-            {
-              data,
-              backgroundColor: [
-                '#FF6F61', // Sunset Orange
-                '#6F42C1', // Electric Indigo
-                '#F9E79F', // Pastel Yellow
-                '#9B59B6', // Soft Purple
-                '#27AE60', // Emerald Green
-                '#FF9F1C',
-                '#00B4D8',
-                '#E36414',
-                '#7E57C2',
-              ],
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: ctx => `${ctx.label}: R ${ctx.parsed.toFixed(2)}`,
-              },
-            },
-          },
-        },
-      });
+    if(window.reportExpensesChart) {
+      window.reportExpensesChart.data.labels = [];
+      window.reportExpensesChart.data.datasets[0].data = [];
+      window.reportExpensesChart.update();
     }
+  }
 
-    // Clear report charts
-    function clearReportCharts() {
-      if (reportSavingsChart) reportSavingsChart.destroy();
-      if (reportExpensesChart) reportExpensesChart.destroy();
-      reportSavingsChartCanvas.getContext('2d').clearRect(0, 0, reportSavingsChartCanvas.width, reportSavingsChartCanvas.height);
-      reportExpensesChartCanvas.getContext('2d').clearRect(0, 0, reportExpensesChartCanvas.width, reportExpensesChartCanvas.height);
+  // Update report charts with data
+  function updateReportCharts(savingsLabels, savingsData, expensesLabels, expensesData) {
+    if(window.reportSavingsChart) {
+      window.reportSavingsChart.data.labels = savingsLabels;
+      window.reportSavingsChart.data.datasets[0].data = savingsData;
+      window.reportSavingsChart.update();
     }
+    if(window.reportExpensesChart) {
+      window.reportExpensesChart.data.labels = expensesLabels;
+      window.reportExpensesChart.data.datasets[0].data = expensesData;
+      window.reportExpensesChart.update();
+    }
+  }
 
-    // PDF report generation
-    async function generatePDFReport() {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'pt', 'a4');
-      const margin = 40;
-      let y = margin;
+  // Generate PDF report
+  async function generatePDFReport() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const margin = 40;
+    let y = margin;
 
-      pdf.setFont('Poppins', 'bold');
-      pdf.setFontSize(18);
-      pdf.text('SmartCents Financial Report', margin, y);
-      y += 30;
+    pdf.setFont('Poppins', 'bold');
+    pdf.setFontSize(18);
+    pdf.text('SmartCents Financial Report', margin, y);
+    y += 30;
 
-      pdf.setFontSize(12);
-      const summaryLines = reportSummary.textContent.trim().split('\n').map(line => line.trim());
-      summaryLines.forEach(line => {
-        pdf.text(line, margin, y);
-        y += 18;
-      });
-      y += 10;
-
-      // Capture and add charts as images
-      const savingsChartImg = await html2canvas(reportSavingsChartCanvas, { backgroundColor: '#fff', scale: 2 });
-      const savingsChartDataURL = savingsChartImg.toDataURL('image/png');
-
-      const expensesChartImg = await html2canvas(reportExpensesChartCanvas, { backgroundColor: '#fff', scale: 2 });
-      const expensesChartDataURL = expensesChartImg.toDataURL('image/png');
-
-      // Add savings chart
-      pdf.text('Savings Progress Chart:', margin, y);
-      y += 10;
-      pdf.addImage(savingsChartDataURL, 'PNG', margin, y, pdf.internal.pageSize.getWidth() - margin * 2, 150);
-      y += 160;
-
-      // Check for page overflow
-      if (y > pdf.internal.pageSize.getHeight() - margin - 160) {
+    pdf.setFontSize(12);
+    const summaryLines = reportSummary.textContent.trim().split('\n').map(line => line.trim());
+    summaryLines.forEach(line => {
+      if (y > pdf.internal.pageSize.getHeight() - margin) {
         pdf.addPage();
         y = margin;
       }
+      pdf.text(line, margin, y);
+      y += 18;
+    });
+    y += 10;
 
-      // Add expenses chart
-      pdf.text('Expenses Breakdown Chart:', margin, y);
-      y += 10;
-      pdf.addImage(expensesChartDataURL, 'PNG', margin, y, pdf.internal.pageSize.getWidth() - margin * 2, 150);
-      y += 160;
+    // Capture and add charts as images
+    const savingsChartImg = await html2canvas(reportSavingsChartCanvas, { backgroundColor: '#fff', scale: 2 });
+    const savingsChartDataURL = savingsChartImg.toDataURL('image/png');
 
-      pdf.save(`SmartCents_Report_${currentYear}_${reportType === 'month' ? monthNames[currentMonth] : ''}.pdf`);
+    const expensesChartImg = await html2canvas(reportExpensesChartCanvas, { backgroundColor: '#fff', scale: 2 });
+    const expensesChartDataURL = expensesChartImg.toDataURL('image/png');
+
+    // Add savings chart
+    if (y + 160 > pdf.internal.pageSize.getHeight() - margin) {
+      pdf.addPage();
+      y = margin;
+    }
+    pdf.text('Savings Progress Chart:', margin, y);
+    y += 10;
+    pdf.addImage(savingsChartDataURL, 'PNG', margin, y, pdf.internal.pageSize.getWidth() - margin * 2, 150);
+    y += 160;
+
+    // Add expenses chart
+    if (y + 160 > pdf.internal.pageSize.getHeight() - margin) {
+      pdf.addPage();
+      y = margin;
+    }
+    pdf.text('Expenses Breakdown Chart:', margin, y);
+    y += 10;
+    pdf.addImage(expensesChartDataURL, 'PNG', margin, y, pdf.internal.pageSize.getWidth() - margin * 2, 150);
+    y += 160;
+
+    // Save PDF
+    const selectedYear = yearSelect.value;
+    const selectedMonthName = monthSelect.options[monthSelect.selectedIndex]?.text || '';
+    const reportType = reportTypeSelect.value;
+    const filename = `SmartCents_Report_${selectedYear}_${reportType === 'month' ? selectedMonthName : 'Yearly'}.pdf`;
+    pdf.save(filename);
+  }
+
+  // Handle payslip upload and save to IndexedDB
+  async function handlePayslipUpload(event) {
+    const files = event.target.files;
+    if (!files.length) return;
+
+    const file = files[0];
+    if (file.type !== 'application/pdf') {
+      alert('Only PDF payslips are supported.');
+      payslipFileInput.value = '';
+      return;
     }
 
-    // Tab navigation logic
-    function switchTab(tab) {
-      if (tab === 'budget') {
-        tabBudgetBtn.classList.add('active');
-        tabDocumentsBtn.classList.remove('active');
-        tabBudgetContent.classList.add('active');
-        tabDocumentsContent.classList.remove('active');
-      } else {
-        tabBudgetBtn.classList.remove('active');
-        tabDocumentsBtn.classList.add('active');
-        tabBudgetContent.classList.remove('active');
-        tabDocumentsContent.classList.add('active');
-        loadDocumentsVault();
+    const selectedYear = parseInt(yearSelect.value, 10);
+    const selectedMonth = parseInt(monthSelect.value, 10);
+
+    // Read file as base64 string
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64Data = e.target.result;
+      // Save in IndexedDB with key: payslip_{year}_{month}
+      const payslipKey = `payslip_${selectedYear}_${selectedMonth}`;
+      await localforage.setItem(payslipKey, {
+        filename: file.name,
+        data: base64Data,
+        uploadedAt: Date.now()
+      });
+      alert(`Payslip saved for ${monthNames[selectedMonth]} ${selectedYear}.`);
+      payslipFileInput.value = '';
+      loadDocumentsVault();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Load and render documents vault UI
+  async function loadDocumentsVault() {
+    documentsVault.innerHTML = '';
+    const years = [];
+
+    // Find all keys starting with payslip_
+    const keys = await localforage.keys();
+    const payslipKeys = keys.filter(k => k.startsWith('payslip_'));
+
+    // Organize by year -> month
+    const docsByYear = {};
+    for (const key of payslipKeys) {
+      const parts = key.split('_');
+      if (parts.length === 3) {
+        const year = parts[1];
+        const month = parts[2];
+        if (!docsByYear[year]) docsByYear[year] = {};
+        docsByYear[year][month] = await localforage.getItem(key);
       }
     }
 
-    tabBudgetBtn.addEventListener('click', () => switchTab('budget'));
-    tabDocumentsBtn.addEventListener('click', () => switchTab('documents'));
+    // Render UI folders and links
+    Object.keys(docsByYear).sort((a,b)=>b-a).forEach(year => {
+      const yearDiv = document.createElement('div');
+      yearDiv.className = 'year-folder';
+      const yearHeader = document.createElement('h3');
+      yearHeader.textContent = year;
+      yearDiv.appendChild(yearHeader);
 
-    // Initialize UI
+      const months = docsByYear[year];
+      Object.keys(months).sort((a,b)=>a-b).forEach(month => {
+        const monthDiv = document.createElement('div');
+        monthDiv.className = 'month-folder';
+        const monthHeader = document.createElement('h4');
+        monthHeader.textContent = monthNames[parseInt(month,10)];
+        monthDiv.appendChild(monthHeader);
+
+        const ul = document.createElement('ul');
+        const li = document.createElement('li');
+        li.textContent = months[month].filename;
+        li.tabIndex = 0;
+        li.role = 'link';
+        li.setAttribute('aria-label', `Download payslip for ${monthNames[parseInt(month,10)]} ${year}`);
+
+        li.addEventListener('click', () => {
+          const link = document.createElement('a');
+          link.href = months[month].data;
+          link.download = months[month].filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+        monthDiv.appendChild(ul);
+        ul.appendChild(li);
+
+        yearDiv.appendChild(monthDiv);
+      });
+
+      documentsVault.appendChild(yearDiv);
+    });
+
+    if (payslipKeys.length === 0) {
+      documentsVault.textContent = 'No payslips uploaded yet.';
+    }
+  }
+
+  // Tab switch handler
+  function switchTab(tab) {
+    if (tab === 'budget') {
+      tabBudgetBtn.classList.add('active');
+      tabDocumentsBtn.classList.remove('active');
+      tabBudgetContent.classList.add('active');
+      tabDocumentsContent.classList.remove('active');
+    } else {
+      tabDocumentsBtn.classList.add('active');
+      tabBudgetBtn.classList.remove('active');
+      tabDocumentsContent.classList.add('active');
+      tabBudgetContent.classList.remove('active');
+      loadDocumentsVault();
+    }
+  }
+  tabBudgetBtn.addEventListener('click', () => switchTab('budget'));
+  tabDocumentsBtn.addEventListener('click', () => switchTab('documents'));
+
+  // Initialize charts
+  function initCharts() {
+    const savingsCtx = savingsChartCanvas.getContext('2d');
+    window.savingsChart = new Chart(savingsCtx, {
+      type: 'line',
+      data: {
+        labels: monthNames,
+        datasets: [{
+          label: 'Monthly Savings (R)',
+          data: new Array(12).fill(0),
+          borderColor: '#2ecc71', // Emerald Green
+          backgroundColor: 'rgba(46, 204, 113, 0.3)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, labels: { font: { family: 'Poppins' } } },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { font: { family: 'Poppins' } }
+          },
+          x: {
+            ticks: { font: { family: 'Poppins' } }
+          }
+        }
+      }
+    });
+
+    const expensesCtx = expensesChartCanvas.getContext('2d');
+    window.expensesChart = new Chart(expensesCtx, {
+      type: 'pie',
+      data: {
+        labels: expenseCategories,
+        datasets: [{
+          label: 'Expenses Breakdown',
+          data: new Array(expenseCategories.length).fill(0),
+          backgroundColor: [
+            '#f39c12', // Sunset Orange
+            '#e67e22',
+            '#d35400',
+            '#e74c3c',
+            '#c0392b',
+            '#f1c40f', // Pastel Yellow
+            '#8e44ad',
+            '#9b59b6',
+            '#2980b9', // Light Blue
+            '#34495e',
+            '#27ae60', // Emerald Green variant
+            '#2ecc71'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'right', labels: { font: { family: 'Poppins' } } },
+          tooltip: { enabled: true }
+        }
+      }
+    });
+
+    const reportSavingsCtx = reportSavingsChartCanvas.getContext('2d');
+    window.reportSavingsChart = new Chart(reportSavingsCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Savings (R)',
+          data: [],
+          borderColor: '#2ecc71',
+          backgroundColor: 'rgba(46, 204, 113, 0.3)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, labels: { font: { family: 'Poppins' } } },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { font: { family: 'Poppins' } }
+          },
+          x: {
+            ticks: { font: { family: 'Poppins' } }
+          }
+        }
+      }
+    });
+
+    const reportExpensesCtx = reportExpensesChartCanvas.getContext('2d');
+    window.reportExpensesChart = new Chart(reportExpensesCtx, {
+      type: 'pie',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Expenses Breakdown',
+          data: [],
+          backgroundColor: [
+            '#f39c12',
+            '#e67e22',
+            '#d35400',
+            '#e74c3c',
+            '#c0392b',
+            '#f1c40f',
+            '#8e44ad',
+            '#9b59b6',
+            '#2980b9',
+            '#34495e',
+            '#27ae60',
+            '#2ecc71'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'right', labels: { font: { family: 'Poppins' } } },
+          tooltip: { enabled: true }
+        }
+      }
+    });
+  }
+
+  // Event bindings
+  saveDataBtn.addEventListener('click', () => {
+    saveCurrentData();
+  });
+
+  showReportBtn.addEventListener('click', () => {
+    showReport();
+  });
+
+  generateReportBtn.addEventListener('click', () => {
+    generatePDFReport();
+  });
+
+  payslipFileInput.addEventListener('change', handlePayslipUpload);
+
+  // When year or month changes, reload inputs & update charts
+  yearSelect.addEventListener('change', async () => {
+    await populateInputs();
+    await updateCharts();
+    reportArea.hidden = true;
+    generateReportBtn.disabled = true;
+  });
+  monthSelect.addEventListener('change', async () => {
+    await populateInputs();
+    await updateCharts();
+    reportArea.hidden = true;
+    generateReportBtn.disabled = true;
+  });
+
+  // Initialize everything on page load
+  async function initialize() {
     initYearMonthSelectors();
     createExpenseInputs();
-    populateInputs();
-    updateCharts();
-    loadDocumentsVault();
-  </script>
+    initCharts();
+    await populateInputs();
+    await updateCharts();
+  }
 
-  <script
-    src="https://kit.fontawesome.com/3e7749d6ec.js"
-    crossorigin="anonymous"
-  ></script>
+  initialize();
+
+})();
+</script>
+
 </body>
-
 </html>
